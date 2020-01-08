@@ -9,33 +9,157 @@ html, body {
 }
 
 body {
+  background-image: url("../assets/backgroundwestern.jpg");
+  background-position: 47% 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+p{
+  margin: 20px;
+}
+
+div.playsound{
   display: flex;
-  align-items: center;
   justify-content: center;
+  padding-top: 20px;
+}
+
+img{
+  max-width: 70px;
+  max-height: 70px;
+}
+
+div.container{
+  display: flex;
+  justify-content: space-evenly;
+}
+
+div.left{
+  display: flex;
+  flex-direction: column;
+  font-family: 'Rye', cursive;
+  font-size: 30px;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 50%);
+}
+
+div.right{
+  display: flex;
+  font-family: 'Rye', cursive;
+  font-size: 30px;
+  align-items: center;
+  flex-direction: column;
+  background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 50%);
+}
+
+div.middle{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 600px;
+  font-size: 40px;
+  font-family: 'Rye', cursive;
 }
 
 div.grid {
-  width: 440px;
-  height: 380px;
+  width: 500px;
+  height: 400px;
   display: flex;
   flex-wrap: wrap;
-  background-color: skyblue;
   justify-content: space-evenly;
   align-items: center;
 }
 
 div.grid-item {
-  width: 60px;
-  height: 60px;
-  border: 4px solid white;
+  width: 70px;
+  height: 70px;
+  border: 4px solid black;
   border-radius: 50%;
   
 }
 
 .red {
-  background-color: red;
+  background-image: url("../assets/shotgun-shell.png");
+  background-size: cover;
+  background-size: 75px;
+  background-position: 50% 57%;
+  animation: shootRight 0.1s;
 }
 
 .yellow {
-  background-color: yellow;
+  background-image: url("../assets/shotgun-front.png");
+  background-size: cover;
+  animation: shootLeft 0.1s;
 }
+
+.flip {
+  animation: flip 0.5s
+}
+
+  @keyframes shootLeft {
+    from {
+      transform: translate3d(-300%, 0, 0);
+      visibility: visible;
+    }
+  
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes shootRight {
+    from {
+      transform: translate3d(300%, 0, 0);
+      visibility: visible;
+    }
+  
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes flip {
+    from {
+      -webkit-transform: perspective(400px) scale3d(1, 1, 1) translate3d(0, 0, 0)
+        rotate3d(0, 1, 0, -360deg);
+      transform: perspective(400px) scale3d(1, 1, 1) translate3d(0, 0, 0) rotate3d(0, 1, 0, -360deg);
+      -webkit-animation-timing-function: ease-out;
+      animation-timing-function: ease-out;
+    }
+  
+    40% {
+      -webkit-transform: perspective(400px) scale3d(1, 1, 1) translate3d(0, 0, 150px)
+        rotate3d(0, 1, 0, -190deg);
+      transform: perspective(400px) scale3d(1, 1, 1) translate3d(0, 0, 150px)
+        rotate3d(0, 1, 0, -190deg);
+      -webkit-animation-timing-function: ease-out;
+      animation-timing-function: ease-out;
+    }
+  
+    50% {
+      -webkit-transform: perspective(400px) scale3d(1, 1, 1) translate3d(0, 0, 150px)
+        rotate3d(0, 1, 0, -170deg);
+      transform: perspective(400px) scale3d(1, 1, 1) translate3d(0, 0, 150px)
+        rotate3d(0, 1, 0, -170deg);
+      -webkit-animation-timing-function: ease-in;
+      animation-timing-function: ease-in;
+    }
+  
+    80% {
+      -webkit-transform: perspective(400px) scale3d(0.95, 0.95, 0.95) translate3d(0, 0, 0)
+        rotate3d(0, 1, 0, 0deg);
+      transform: perspective(400px) scale3d(0.95, 0.95, 0.95) translate3d(0, 0, 0)
+        rotate3d(0, 1, 0, 0deg);
+      -webkit-animation-timing-function: ease-in;
+      animation-timing-function: ease-in;
+    }
+  
+    to {
+      -webkit-transform: perspective(400px) scale3d(1, 1, 1) translate3d(0, 0, 0)
+        rotate3d(0, 1, 0, 0deg);
+      transform: perspective(400px) scale3d(1, 1, 1) translate3d(0, 0, 0) rotate3d(0, 1, 0, 0deg);
+      -webkit-animation-timing-function: ease-in;
+      animation-timing-function: ease-in;
+    }
+  }
