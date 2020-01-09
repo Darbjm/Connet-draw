@@ -9,9 +9,10 @@
   </head>
   <body>
     <audio id="music" src="../starter-code/assets/westsong.mp3" loop></audio>
-    <div class="playsound">
+    <header>
+      <button id="reset">Reset</button>
       <img src="assets/banjo.png" id="Banjo">
-    </div>
+    </header>
 
     <div class="container">
 
@@ -22,7 +23,7 @@
 
     <div class="middle">
       <audio id="guns" src="#"></audio>
-      <h1>Connect Draw!</h1>
+      <h2>Connect Draw!</h2>
       <div class="grid">
       </div>
       <div class="start">
@@ -31,11 +32,22 @@
           <p class="instructions">It's classic Connect Four, line up four of <br> your tokens in any direction to win. <br><br>
           Click the coloumn you want to drop your token in.</p>
           <div class="buttons">
-            <button>Single Player</button>
-            <button>Duel</button>
+            <button class="duel">Duel</button>
+            <button class="single">Single Player</button>
           </div>
         </div>
+      </div>
+      <div class="finish">
+        <div class="instructions">
+          <h2 id="winner"></h2> 
+          <p class="instructions">Play again?</p>
+          <div class="buttons">
+            <button class="duel">Duel</button>
+            <button class="single">Single Player</button>
+      </div>
         </div>
+
+      </div>
 
     </div><!-- .middle-->
 
@@ -43,7 +55,6 @@
       <h2>Player 2</h2>
       <img src="assets/shotgun-shell.png">
     </div>
-
   </div>
     
   </body>

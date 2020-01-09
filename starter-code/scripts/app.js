@@ -1,25 +1,261 @@
 
 function init() {
   //  DOM Variables
-  const grid = document.querySelector('.grid')
+  const grid = document.querySelector('.grid') //The game grid
   const circles = [] //Belongs here as you fill the array with DOM references eventhough genallly it should be in the game variables
-  const musicbttn = document.querySelector('#Banjo')
-  const music = document.querySelector('#music')
-  const soundFX = document.querySelector('#guns')
-  const btns = document.querySelector('button')
-  const start = document.querySelector('.start')
-  const sides = document.querySelectorAll('.side')
+  const musicbttn = document.querySelector('#Banjo') //The banjo that plays music when clicked
+  const music = document.querySelector('#music') //Audio
+  const soundFX = document.querySelector('#guns') //Audio
+  const twoPlayerBtns = document.querySelectorAll('.duel') // 2 Player mode button
+  const singlePlayerBtns = document.querySelectorAll('.single') // Single player
+  const start = document.querySelector('.start') //Start Menu
+  const sides = document.querySelectorAll('.side') //Sides the show player name and token
+  const resetbtn = document.querySelector('#reset') //Reset button
+  const finish = document.querySelector('.finish') //End menu
+  const winner = document.querySelector('#winner') //Winner name html
+
   // Game Variables
   const width = 7 //if you want grid bigger, change this then change styling in css accordingly
-  const height = 6
+  const height = 6 //if you want grid bigger, change this then change styling in css accordingly
   const P1Cls = 'yellow' // Player 1 colour
   const P2Cls = 'red' // Player 2 colour
-  const winFlip = 'flip'
-  let playerGo = true
-  let inPlay = true
-  let musicplaying = false
+  const winFlip = 'flip' // Win animation
+  let playerGo = true //if its true it's Player 1's go
+  let inPlay = true //if its true the game is in play
+  let musicplaying = false //if its true music is playing
+  let computer = false
+  let turns = 0
+  let playerMessage = true
+  
+  //loop empty array (HOW TO MAKE A SIMPLE GRID)
+  Array(width * height).join('.').split('.').forEach((num, i) => {
+    const circle = document.createElement('div')
+    circle.classList.add('grid-item')
+    circle.setAttribute('data-id', i)
+    circles.push(circle)
+    grid.appendChild(circle)
+  })
+
+  //columns
+  const col0 = circles.filter((e, i) => i % 7 === 0) //make into object for refactoring
+  const col1 = circles.filter((e, i) => i % 7 === 1)
+  const col2 = circles.filter((e, i) => i % 7 === 2)
+  const col3 = circles.filter((e, i) => i % 7 === 3)
+  const col4 = circles.filter((e, i) => i % 7 === 4)
+  const col5 = circles.filter((e, i) => i % 7 === 5)
+  const col6 = circles.filter((e, i) => i % 7 === 6)
+
+  // Change Player
+  function changePlayer(){ 
+    playerMessage = !playerMessage
+    if (!computer){
+      playerGo = !playerGo
+    }
+  }
+
+  //Event listener for music button
+  musicbttn.addEventListener('click', playSound)
+  function playSound() {
+    if (!musicplaying){
+      musicplaying = !musicplaying
+      music.src = '../starter-code/assets/westsong.mp3' 
+      musicbttn.src = '../starter-code/assets/banjo_off.png'
+      music.play()
+    } else if (musicplaying){
+      musicbttn.src = '../starter-code/assets/banjo.png'
+      musicplaying = !musicplaying
+      music.pause()
+    }
+  }
+
+  //Play buttons
+
+  //start game single player
+  singlePlayerBtns.forEach(btn => {
+    btn.addEventListener('click', singleStartGame)
+  })
+
+  function singleStartGame(){
+    turns = 0
+    playguns()
+    computer = true
+    playerGo = true
+    inPlay = true
+    start.style.display = 'none'
+    grid.style.display = 'flex'
+    resetbtn.style.visibility = 'visible'
+    sides.forEach(side => {
+      side.style.display = 'flex'
+    })
+    finish.style.display = 'none'
+  }
+
+  //start game 2 player
+  twoPlayerBtns.forEach(btn => {
+    btn.addEventListener('click', duelStartGame)
+  })
+
+  //singleplayer game
+  function duelStartGame(){
+    turns = 0
+    playguns()
+    playerGo = true
+    inPlay = true
+    start.style.display = 'none'
+    grid.style.display = 'flex'
+    resetbtn.style.visibility = 'visible'
+    sides.forEach(side => {
+      side.style.display = 'flex'
+    })
+    finish.style.display = 'none'
+  }
+
+  //reset
+  resetbtn.addEventListener('click', reset)
+  //Clears grid and goes back to menu
+  function reset(){
+    clearGrid()
+    grid.style.display = 'none'
+    start.style.display = 'flex'
+    finish.style.display = 'none'
+    resetbtn.style.visibility = 'hidden'
+    sides.forEach(side => {
+      side.style.display = 'none'
+    })
+  }
+
+  //clears grid
+  function clearGrid() {
+    wipevals()
+    circles.map(e => {
+      e.classList.remove(P1Cls)
+      e.classList.remove(P2Cls)
+      e.classList.remove(winFlip)
+    })
+  }
+
+  //Clears grid and goes to win or draw menu
+  function finMenu(){
+    clearGrid()
+    grid.style.display = 'none'
+    finish.style.display = 'flex'
+    resetbtn.style.visibility = 'hidden'
+    sides.forEach(side => {
+      side.style.display = 'none'
+    })
+  }
+
+  //Draw
+  function draw(){
+    if (turns === 41){
+      wipevals() // computer = false, turns = 0, inplay = !inplay
+      resetbtn.style.visibility = 'hidden'
+      yeehaw() //Plays cowboy sound
+      setTimeout(finMenu, 2000)
+      winner.innerHTML = '<br>It\'s a tie!'
+    }
+  }
+  
+  //Choose winner
+  function checkWin(){
+    if (computer){
+      if (!playerMessage){
+        winner.innerHTML = '<br>Congrats You win!'
+      } else {
+        winner.innerHTML = '<br>You lose'
+      }
+      wipevals() // computer = false, turns = 0, inplay = !inplay
+      resetbtn.style.visibility = 'hidden'
+      yeehaw() //Plays cowboy sound
+      setTimeout(finMenu, 2000)
+      
+    } else {
+      wipevals() // computer = false, turns = 0, inplay = !inplay
+      resetbtn.style.visibility = 'hidden'
+      yeehaw() //Plays cowboy sound
+      setTimeout(finMenu, 2000)
+      if (playerGo){
+        winner.innerHTML = '<br>Congrats Player 1'
+      } else winner.innerHTML = '<br>Congrats Player 2'
+    }
+  }
+
+  // wipes values
+  function wipevals(){
+    computer = false
+    turns = 0
+    inPlay = !inPlay
+    playerMessage = true
+  }
 
 
+  // Code for AI
+
+  // when the user clicks AI drops a color
+
+  // scores for AI
+
+  // + 4 for center column or col3
+  // + 2 for lines of two
+  // + 5 for lines of three
+  // find AI's colors (1)
+  // place colors in columns
+  // [0 0 0 0 0
+  //  0 0 0 0 0
+  //  0 0 1 0 0
+  //  0 0 2 0 0]
+  
+  // columns.find first color
+  // col3[2] all others is colx[5]
+  
+
+  // so a line of 2 would be + 2
+  // columnx[aiColor] && columx[aiColor - 1] one above
+
+  // columnx[aiColor] && columx + 1 [aiColor] horizontal right
+  // columx[aiColor] && columx + 2 [aiColor] horizontal right
+  // columx[aiColor] && columx + 3 [aiColor] horizontal right
+  // columx[aiColor] && columx + 4 [aiColor] horizontal right
+  
+  // columnx[aiColor] && columx - 1 [aiColor] horizontal left
+  // columnx[aiColor] && columx - 1 [aiColor + 1] diagonal down left
+  // columnx[aiColor] && columx - 1 [aiColor - 1] diagonal up left
+  // columnx[aiColor] && columx + 1 [aiColor + 1] diagonal down right
+  // columnx[aiColor] && columx + 1 [aiColor - 1] diagonal up right
+
+  // so a line of 3 would be + 5 
+  // columnx[aiColor] && columx[aiColor - 1] && columx[aiColor - 2]   two above
+
+  // columnx[aiColor] && columx + 1 [aiColor] && columx + 2 [aiColor] horizontal right
+  // columnx[aiColor] && columx - 1 [aiColor] && columx - 2 [aiColor] horizontal left
+  // columnx[aiColor] && columx - 1 [aiColor] && columx + 1 [aiColor] horizontal center
+
+  // columnx[aiColor] && columx - 1 [aiColor + 1] && columx - 2 [aiColor + 2] diagonal down left/
+  // columnx[aiColor] && columx - 1 [aiColor + 1] && columx + 1 [aiColor - 1] diagonal center/
+  // columnx[aiColor] && columx + 1 [aiColor - 1] && columx + 2 [aiColor - 2] diagonal up right/
+
+  // columnx[aiColor] && columx + 1 [aiColor + 1] && columx + 2 [aiColor + 2] diagonal down right\
+  // columnx[aiColor] && columx + 1 [aiColor + 1] && columx - 1 [aiColor - 1] diagonal center\
+  // columnx[aiColor] && columx - 1 [aiColor - 1] && columx - 2 [aiColor - 2] diagonal up left\
+
+  
+  // columnx[aiColor] && columx + 1 [aiColor + 1] diagonal up right
+
+  // + 5 for lines of three
+  
+  // function minmax(position, depth, maxPlayer){}
+
+  //sounds
+
+  // Winning sound
+  function yeehaw() { //Plays cowboy sound
+    if (musicplaying) {
+      soundFX.src = '../starter-code/assets/yeehaw.m //Plays cowboy soundp3'
+      return soundFX.play()
+    }
+  }
+
+  // gun sounds
   function playguns() {
     if (musicplaying) {
       const randomNum = (Math.ceil(Math.random() * 10))
@@ -71,73 +307,45 @@ function init() {
     }
   }
 
-  function startGame(){
-    playguns()
-    start.style.display = 'none'
-    grid.style.display = 'flex'
-    sides.forEach(side => {
-      side.style.display = 'flex'
-    })
-  }
+  function createMove(){
+    const arrayChoice = [0,0,0,0,0,0,0]
+    arrayChoice[0] = 0
+    arrayChoice[1] = 0
+    arrayChoice[2] = 0
+    arrayChoice[3] = 4
+    arrayChoice[4] = 0
+    arrayChoice[5] = 0
+    arrayChoice[6] = 0
 
-  btns.addEventListener('click', startGame)
-  
-  musicbttn.addEventListener('click', playSound)
-  function playSound() {
-    if (!musicplaying){
-      musicplaying = !musicplaying
-      music.src = '../starter-code/assets/westsong.mp3' 
-      musicbttn.src = '../starter-code/assets/banjo_off.png'
-      music.play()
-    } else if (musicplaying){
-      musicbttn.src = '../starter-code/assets/banjo.png'
-      musicplaying = !musicplaying
-      music.pause()
+    const maxNumber = Math.max(...arrayChoice)
+    const playHere = arrayChoice.indexOf(maxNumber)
+
+    if (playHere === 0) {
+      dropColor02()
+      checkWinC0P2()
+    }
+
+    if (playHere === 1) {
+      dropColor12()
+      checkWinC1P2()
+    }
+
+    if (playHere === 3) {
+      dropColor32()
+      checkWinC3P2()
     }
   }
 
-  //loop empty array (HOW TO MAKE A SIMPLE GRID)
-  Array(width * height).join('.').split('.').forEach((num, i) => {
-    const circle = document.createElement('div')
-    circle.classList.add('grid-item')
-    circle.setAttribute('data-id', i)
-    circles.push(circle)
-    grid.appendChild(circle)
-  })
-
-  //columns
-  const col0 = circles.filter((e, i) => i % 7 === 0) //make into object for refactoring
-  const col1 = circles.filter((e, i) => i % 7 === 1)
-  const col2 = circles.filter((e, i) => i % 7 === 2)
-  const col3 = circles.filter((e, i) => i % 7 === 3)
-  const col4 = circles.filter((e, i) => i % 7 === 4)
-  const col5 = circles.filter((e, i) => i % 7 === 5)
-  const col6 = circles.filter((e, i) => i % 7 === 6)
-
-  function changePlayer(){ // Change Player
-    playerGo = !playerGo
-  }
-
-  function yeehaw(){
-    if (musicplaying) {
-      soundFX.src = '../starter-code/assets/yeehaw.mp3'
-      return soundFX.play()
+  function compturn(){
+    if (computer){
+      setTimeout(createMove, 100)
+      playguns()
+      draw()
+      turns++
     }
   }
 
-  function player1Win(){
-    inPlay = !inPlay
-    yeehaw()
-    grid.style.display = 'none'
-  }
 
-  function player2Win(){
-    inPlay = !inPlay
-    yeehaw()
-    grid.style.display = 'none'
-  }
-  
-  
   col0.forEach(e => { // Listener for column 0
     e.addEventListener('click', () => {
       if (col0[0].classList.contains(P1Cls) || col0[0].classList.contains(P2Cls)) return // do nothing if col is full or winner is found
@@ -145,26 +353,31 @@ function init() {
       if (playerGo) {
         dropColor01()
         playguns()
+        draw()
         checkWinC0P1()
         changePlayer()
-      } else if (!playerGo) {
+        compturn()
+        turns++
+      } else if (!playerGo && !computer) {
         dropColor02()
         playguns()
+        draw()
         checkWinC0P2()
         changePlayer()
+        turns++
       }
     })
   })
 
   function checkWinC0P1() { // checkWin col0 player 1
-    const pIdx = col0.indexOf(col0.find(e => e.classList.contains(P1Cls)))
+    const pIdx = col0.indexOf(col0.find(e => e.classList.contains(P1Cls))) // find the index of color 1
     // horizontal check
     if (col0[pIdx].classList.contains(P1Cls) && col1[pIdx].classList.contains(P1Cls) && col2[pIdx].classList.contains(P1Cls) && col3[pIdx].classList.contains(P1Cls)){
       col0[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
 
       // vertical check
     } if (pIdx < 3) { 
@@ -173,7 +386,7 @@ function init() {
         col0[pIdx + 1].classList.add(winFlip)
         col0[pIdx + 2].classList.add(winFlip)
         col0[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
 
         // diagonal down right
       } if (col3[pIdx + 3].classList.contains(P1Cls) && col2[pIdx + 2].classList.contains(P1Cls) && col1[pIdx + 1].classList.contains(P1Cls) && col0[pIdx].classList.contains(P1Cls)) {
@@ -181,7 +394,7 @@ function init() {
         col1[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
         col3[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       } 
     
       // diagonal up right
@@ -191,7 +404,7 @@ function init() {
         col1[pIdx - 1].classList.add(winFlip)
         col2[pIdx - 2].classList.add(winFlip)
         col3[pIdx - 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
     }
   }
@@ -204,7 +417,7 @@ function init() {
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
 
       // vertical check 
     } if (pIdx < 3) {
@@ -213,7 +426,7 @@ function init() {
         col0[pIdx + 1].classList.add(winFlip)
         col0[pIdx + 2].classList.add(winFlip)
         col0[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
 
         // diagonal down right \
       } if (col3[pIdx + 3].classList.contains(P2Cls) && col2[pIdx + 2].classList.contains(P2Cls) && col1[pIdx + 1].classList.contains(P2Cls) && col0[pIdx].classList.contains(P2Cls)) {
@@ -221,7 +434,7 @@ function init() {
         col1[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
         col3[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       } 
       
       // diagonal up right /
@@ -231,7 +444,7 @@ function init() {
         col1[pIdx - 1].classList.add(winFlip)
         col2[pIdx - 2].classList.add(winFlip)
         col3[pIdx - 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
     }
   }
@@ -261,13 +474,18 @@ function init() {
       if (playerGo) {
         dropColor11()
         playguns()
+        draw()
         checkWinC1P1()
         changePlayer()
+        compturn()
+        turns++
       } else if (!playerGo) {
         dropColor12()
         playguns()
+        draw()
         checkWinC1P2()
         changePlayer()
+        turns++
       }
     })
   })
@@ -280,13 +498,13 @@ function init() {
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
     } if (col0[pIdx].classList.contains(P1Cls) && col1[pIdx].classList.contains(P1Cls) && col2[pIdx].classList.contains(P1Cls) && col3[pIdx].classList.contains(P1Cls)){
       col0[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
 
       // diagonal up right /
     } if (pIdx > 2) {
@@ -295,7 +513,7 @@ function init() {
         col2[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
         col4[pIdx - 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal up right /
     } if (pIdx < 5 && pIdx > 1 ) {
@@ -304,7 +522,7 @@ function init() {
         col1[pIdx].classList.add(winFlip)
         col2[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
     
       // diagonal down right \
@@ -314,7 +532,7 @@ function init() {
         col2[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
         col4[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 4 && pIdx > 0) {
@@ -323,7 +541,7 @@ function init() {
         col1[pIdx].classList.add(winFlip)
         col2[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
 
       // vertical check
@@ -333,7 +551,7 @@ function init() {
         col1[pIdx + 1].classList.add(winFlip)
         col1[pIdx + 2].classList.add(winFlip)
         col1[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
     }
   }
@@ -346,13 +564,13 @@ function init() {
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
     } if (col0[pIdx].classList.contains(P2Cls) && col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls)){
       col0[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
   
       // diagonal up right /
     } if (pIdx > 2) {
@@ -361,7 +579,7 @@ function init() {
         col2[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
         col4[pIdx - 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal up right /
     } if (pIdx < 5 && pIdx > 1 ) {
@@ -370,7 +588,7 @@ function init() {
         col1[pIdx].classList.add(winFlip)
         col2[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       
       // diagonal down right \
@@ -380,7 +598,7 @@ function init() {
         col2[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
         col4[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 4 && pIdx > 0) {
@@ -389,7 +607,7 @@ function init() {
         col1[pIdx].classList.add(winFlip)
         col2[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
   
       // vertical check
@@ -399,7 +617,7 @@ function init() {
         col1[pIdx + 1].classList.add(winFlip)
         col1[pIdx + 2].classList.add(winFlip)
         col1[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
     }
   }
@@ -429,13 +647,18 @@ function init() {
       if (playerGo) {
         dropColor21()
         playguns()
+        draw()
         checkWinC2P1()
         changePlayer()
+        compturn()
+        turns++
       } else if (!playerGo) {
         dropColor22()
         playguns()
+        draw()
         checkWinC2P2()
         changePlayer()
+        turns++
       }
     })
   })
@@ -448,19 +671,19 @@ function init() {
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
     } if (col1[pIdx].classList.contains(P1Cls) && col2[pIdx].classList.contains(P1Cls) && col3[pIdx].classList.contains(P1Cls) && col4[pIdx].classList.contains(P1Cls)){
       col4[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
     } if (col0[pIdx].classList.contains(P1Cls) && col1[pIdx].classList.contains(P1Cls) && col2[pIdx].classList.contains(P1Cls) && col3[pIdx].classList.contains(P1Cls)){
       col0[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
   
       // diagonal up right /
     } if (pIdx > 2) {
@@ -469,7 +692,7 @@ function init() {
         col3[pIdx - 1].classList.add(winFlip)
         col4[pIdx - 2].classList.add(winFlip)
         col5[pIdx - 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal up right / 
     } if (pIdx < 5 && pIdx > 1 ) {
@@ -478,7 +701,7 @@ function init() {
         col2[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
         col4[pIdx - 2].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal up right /
     } if (pIdx < 4 && pIdx > 0 ) {
@@ -487,7 +710,7 @@ function init() {
         col1[pIdx + 1].classList.add(winFlip)
         col2[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       
       // diagonal down right \
@@ -497,7 +720,7 @@ function init() {
         col3[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
         col5[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 4 && pIdx > 0) {
@@ -506,7 +729,7 @@ function init() {
         col2[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 5 && pIdx > 1) {
@@ -515,7 +738,7 @@ function init() {
         col1[pIdx - 1].classList.add(winFlip)
         col2[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
   
       // vertical check
@@ -525,7 +748,7 @@ function init() {
         col2[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
         col2[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
     }
   }
@@ -538,19 +761,19 @@ function init() {
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
     } if (col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls)){
       col4[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
     } if (col0[pIdx].classList.contains(P2Cls) && col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls)){
       col0[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
   
       // diagonal up right /
     } if (pIdx > 2) {
@@ -559,7 +782,7 @@ function init() {
         col3[pIdx - 1].classList.add(winFlip)
         col4[pIdx - 2].classList.add(winFlip)
         col5[pIdx - 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal up right / 
     } if (pIdx < 5 && pIdx > 1 ) {
@@ -568,7 +791,7 @@ function init() {
         col2[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
         col4[pIdx - 2].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal up right /
     } if (pIdx < 4 && pIdx > 0 ) {
@@ -577,7 +800,7 @@ function init() {
         col1[pIdx + 1].classList.add(winFlip)
         col2[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       
       // diagonal down right \
@@ -587,7 +810,7 @@ function init() {
         col3[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
         col5[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 4 && pIdx > 0) {
@@ -596,7 +819,7 @@ function init() {
         col2[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 5 && pIdx > 1) {
@@ -605,7 +828,7 @@ function init() {
         col1[pIdx - 1].classList.add(winFlip)
         col2[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
   
       // vertical check
@@ -615,7 +838,7 @@ function init() {
         col2[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
         col2[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
     }
   }
@@ -645,13 +868,18 @@ function init() {
       if (playerGo) {
         dropColor31()
         playguns()
+        draw()
         checkWinC3P1()
         changePlayer()
+        compturn()
+        turns++
       } else if (!playerGo) {
         dropColor32()
         playguns()
+        draw()
         checkWinC3P2()
         changePlayer()
+        turns++
       }
     })
   })
@@ -664,25 +892,25 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
     } if (col2[pIdx].classList.contains(P1Cls) && col3[pIdx].classList.contains(P1Cls) && col4[pIdx].classList.contains(P1Cls) && col5[pIdx].classList.contains(P1Cls)){
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
     } if (col1[pIdx].classList.contains(P1Cls) && col2[pIdx].classList.contains(P1Cls) && col3[pIdx].classList.contains(P1Cls) && col4[pIdx].classList.contains(P1Cls)){
       col4[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
     } if (col0[pIdx].classList.contains(P1Cls) && col1[pIdx].classList.contains(P1Cls) && col2[pIdx].classList.contains(P1Cls) && col3[pIdx].classList.contains(P1Cls)){
       col0[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
   
       // diagonal up right /
     } if (pIdx > 2) {
@@ -691,7 +919,7 @@ function init() {
         col5[pIdx - 2].classList.add(winFlip)
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal up right / 
     } if (pIdx < 5 && pIdx > 1 ) {
@@ -700,7 +928,7 @@ function init() {
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
         col2[pIdx + 1].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal up right /
     } if (pIdx < 4 && pIdx > 0 ) {
@@ -709,7 +937,7 @@ function init() {
         col3[pIdx].classList.add(winFlip)
         col2[pIdx + 1].classList.add(winFlip)
         col1[pIdx + 2].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal up left \
     } if (pIdx > 2) {
@@ -718,7 +946,7 @@ function init() {
         col2[pIdx - 1].classList.add(winFlip)
         col1[pIdx - 2].classList.add(winFlip)
         col0[pIdx - 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
 
       // diagonal down right \
@@ -728,7 +956,7 @@ function init() {
         col5[pIdx + 2].classList.add(winFlip)
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 4 && pIdx > 0) {
@@ -737,7 +965,7 @@ function init() {
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
         col2[pIdx - 1].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 5 && pIdx > 1) {
@@ -746,7 +974,7 @@ function init() {
         col3[pIdx].classList.add(winFlip)
         col2[pIdx - 1].classList.add(winFlip)
         col1[pIdx - 2].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal down left /
     } if (pIdx < 3) {
@@ -755,7 +983,7 @@ function init() {
         col2[pIdx + 1].classList.add(winFlip)
         col1[pIdx + 2].classList.add(winFlip)
         col0[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
   
       // vertical check
@@ -765,7 +993,7 @@ function init() {
         col3[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
         col3[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
     }
   }
@@ -778,25 +1006,25 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
     } if (col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls) && col5[pIdx].classList.contains(P2Cls)){
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
     } if (col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls)){
       col4[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
     } if (col0[pIdx].classList.contains(P2Cls) && col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls)){
       col0[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
   
       // diagonal up right /
     } if (pIdx > 2) {
@@ -805,7 +1033,7 @@ function init() {
         col5[pIdx - 2].classList.add(winFlip)
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal up right / 
     } if (pIdx < 5 && pIdx > 1 ) {
@@ -814,7 +1042,7 @@ function init() {
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
         col2[pIdx + 1].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal up right /
     } if (pIdx < 4 && pIdx > 0 ) {
@@ -823,7 +1051,7 @@ function init() {
         col3[pIdx].classList.add(winFlip)
         col2[pIdx + 1].classList.add(winFlip)
         col1[pIdx + 2].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal up left \
     } if (pIdx > 2) {
@@ -832,7 +1060,7 @@ function init() {
         col2[pIdx - 1].classList.add(winFlip)
         col1[pIdx - 2].classList.add(winFlip)
         col0[pIdx - 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
     
       
@@ -843,7 +1071,7 @@ function init() {
         col5[pIdx + 2].classList.add(winFlip)
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 4 && pIdx > 0) {
@@ -852,7 +1080,7 @@ function init() {
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
         col2[pIdx - 1].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 5 && pIdx > 1) {
@@ -861,7 +1089,7 @@ function init() {
         col3[pIdx].classList.add(winFlip)
         col2[pIdx - 1].classList.add(winFlip)
         col1[pIdx - 2].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal down left /
     } if (pIdx < 3) {
@@ -870,7 +1098,7 @@ function init() {
         col2[pIdx + 1].classList.add(winFlip)
         col1[pIdx + 2].classList.add(winFlip)
         col0[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
   
       // vertical check
@@ -880,7 +1108,7 @@ function init() {
         col3[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
         col3[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
     }
   }
@@ -910,13 +1138,18 @@ function init() {
       if (playerGo) {
         dropColor41()
         playguns()
+        draw()
         checkWinC4P1()
         changePlayer()
+        compturn()
+        turns++
       } else if (!playerGo) {
         dropColor42()
         playguns()
+        draw()
         checkWinC4P2()
         changePlayer()
+        turns++
       }
     })
   })
@@ -929,19 +1162,19 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
     } if (col2[pIdx].classList.contains(P1Cls) && col3[pIdx].classList.contains(P1Cls) && col4[pIdx].classList.contains(P1Cls) && col5[pIdx].classList.contains(P1Cls)){
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
     } if (col1[pIdx].classList.contains(P1Cls) && col2[pIdx].classList.contains(P1Cls) && col3[pIdx].classList.contains(P1Cls) && col4[pIdx].classList.contains(P1Cls)){
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
   
       // diagonal up right /
     } if (pIdx < 5 && pIdx > 1) {
@@ -950,7 +1183,7 @@ function init() {
         col5[pIdx - 1].classList.add(winFlip)
         col4[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal up right / 
     } if (pIdx < 4 && pIdx > 0 ) {
@@ -959,7 +1192,7 @@ function init() {
         col4[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal up left \
     } if (pIdx > 2) {
@@ -968,7 +1201,7 @@ function init() {
         col3[pIdx - 1].classList.add(winFlip)
         col2[pIdx - 2].classList.add(winFlip)
         col1[pIdx - 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
 
       // diagonal down left /
@@ -978,7 +1211,7 @@ function init() {
         col3[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
         col1[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 5 && pIdx > 1) {
@@ -987,7 +1220,7 @@ function init() {
         col4[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
         col2[pIdx - 2].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 4 && pIdx > 0) {
@@ -996,7 +1229,7 @@ function init() {
         col5[pIdx + 1].classList.add(winFlip)
         col4[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
   
       // vertical check
@@ -1006,7 +1239,7 @@ function init() {
         col4[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
         col4[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
     }
   }
@@ -1019,19 +1252,19 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
     } if (col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls) && col5[pIdx].classList.contains(P2Cls)){
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
     } if (col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls)){
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
   
       // diagonal up right /
     } if (pIdx < 5 && pIdx > 1) {
@@ -1040,7 +1273,7 @@ function init() {
         col5[pIdx - 1].classList.add(winFlip)
         col4[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal up right / 
     } if (pIdx < 4 && pIdx > 0 ) {
@@ -1049,7 +1282,7 @@ function init() {
         col4[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal up left \
     } if (pIdx > 2) {
@@ -1058,7 +1291,7 @@ function init() {
         col3[pIdx - 1].classList.add(winFlip)
         col2[pIdx - 2].classList.add(winFlip)
         col1[pIdx - 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
 
       // diagonal down left /
@@ -1068,7 +1301,7 @@ function init() {
         col3[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
         col1[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 5 && pIdx > 1) {
@@ -1077,7 +1310,7 @@ function init() {
         col4[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
         col2[pIdx - 2].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal down right \
     } if (pIdx < 4 && pIdx > 0) {
@@ -1086,7 +1319,7 @@ function init() {
         col5[pIdx + 1].classList.add(winFlip)
         col4[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       
       // vertical check
@@ -1096,7 +1329,7 @@ function init() {
         col4[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
         col4[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
     }
   }
@@ -1126,13 +1359,18 @@ function init() {
       if (playerGo) {
         dropColor51()
         playguns()
+        draw()
         checkWinC5P1()
         changePlayer()
+        compturn()
+        turns++
       } else if (!playerGo) {
         dropColor52()
         playguns()
+        draw()
         checkWinC5P2()
         changePlayer()
+        turns++
       }
     })
   })
@@ -1145,13 +1383,13 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
     } if (col2[pIdx].classList.contains(P1Cls) && col3[pIdx].classList.contains(P1Cls) && col4[pIdx].classList.contains(P1Cls) && col5[pIdx].classList.contains(P1Cls)){
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
   
       // diagonal up right / 
     } if (pIdx < 4 && pIdx > 0 ) {
@@ -1160,7 +1398,7 @@ function init() {
         col5[pIdx].classList.add(winFlip)
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal up left \
     } if (pIdx > 2) {
@@ -1169,7 +1407,7 @@ function init() {
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
         col2[pIdx - 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
 
       // diagonal down right \
@@ -1179,7 +1417,7 @@ function init() {
         col5[pIdx].classList.add(winFlip)
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
       // diagonal down left /
     } if (pIdx < 3) {
@@ -1188,7 +1426,7 @@ function init() {
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
         col2[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
     
   
@@ -1199,7 +1437,7 @@ function init() {
         col5[pIdx + 1].classList.add(winFlip)
         col5[pIdx + 2].classList.add(winFlip)
         col5[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
     }
   }
@@ -1212,13 +1450,13 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
     } if (col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls) && col5[pIdx].classList.contains(P2Cls)){
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
   
       // diagonal up right / 
     } if (pIdx < 4 && pIdx > 0 ) {
@@ -1227,7 +1465,7 @@ function init() {
         col5[pIdx].classList.add(winFlip)
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal up left \
     } if (pIdx > 2) {
@@ -1236,7 +1474,7 @@ function init() {
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
         col2[pIdx - 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
 
       // diagonal down right \
@@ -1246,7 +1484,7 @@ function init() {
         col5[pIdx].classList.add(winFlip)
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
       // diagonal down left /
     } if (pIdx < 3) {
@@ -1255,7 +1493,7 @@ function init() {
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
         col2[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
   
       // vertical check
@@ -1265,7 +1503,7 @@ function init() {
         col5[pIdx + 1].classList.add(winFlip)
         col5[pIdx + 2].classList.add(winFlip)
         col5[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
     }
   }
@@ -1295,13 +1533,18 @@ function init() {
       if (playerGo) {
         dropColor61()
         playguns()
+        draw()
         checkWinC6P1()
         changePlayer()
+        compturn()
+        turns++
       } else if (!playerGo) {
         dropColor62()
         playguns()
+        draw()
         checkWinC6P2()
         changePlayer()
+        turns++
       }
     })
   })
@@ -1314,7 +1557,7 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player1Win()
+      return checkWin()
   
       // diagonal down right / 
     } if (pIdx < 3) {
@@ -1323,7 +1566,7 @@ function init() {
         col5[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
         col3[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
 
       // diagonal up left \
@@ -1333,7 +1576,7 @@ function init() {
         col5[pIdx - 1].classList.add(winFlip)
         col4[pIdx - 2].classList.add(winFlip)
         col3[pIdx - 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
   
       // vertical check
@@ -1343,7 +1586,7 @@ function init() {
         col6[pIdx + 1].classList.add(winFlip)
         col6[pIdx + 2].classList.add(winFlip)
         col6[pIdx + 3].classList.add(winFlip)
-        return player1Win()
+        return checkWin()
       }
     }
   }
@@ -1356,7 +1599,7 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
-      return player2Win()
+      return checkWin()
   
       // diagonal down right / 
     } if (pIdx < 3) {
@@ -1365,7 +1608,7 @@ function init() {
         col5[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
         col3[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
 
       // diagonal up left \
@@ -1375,7 +1618,7 @@ function init() {
         col5[pIdx - 1].classList.add(winFlip)
         col4[pIdx - 2].classList.add(winFlip)
         col3[pIdx - 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
   
       // vertical check
@@ -1385,7 +1628,7 @@ function init() {
         col6[pIdx + 1].classList.add(winFlip)
         col6[pIdx + 2].classList.add(winFlip)
         col6[pIdx + 3].classList.add(winFlip)
-        return player2Win()
+        return checkWin()
       }
     }
   }
