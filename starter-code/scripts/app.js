@@ -4,8 +4,10 @@ function init() {
   const grid = document.querySelector('.grid') //The game grid
   const circles = [] //Belongs here as you fill the array with DOM references eventhough genallly it should be in the game variables
   const musicbttn = document.querySelector('#Banjo') //The banjo that plays music when clicked
-  const music = document.querySelector('#music') //Audio
-  const soundFX = document.querySelector('#guns') //Audio
+  const music = document.querySelector('#music') //Audio music
+  const soundFX = document.querySelector('#guns') //Audio guns
+  const soundFX2 = document.querySelector('#guns2') //Audio guns2
+  const soundFX3 = document.querySelector('#yeehaw') //Audio yeehaw
   const twoPlayerBtns = document.querySelectorAll('.duel') // 2 Player mode button
   const singlePlayerBtns = document.querySelectorAll('.single') // Single player
   const start = document.querySelector('.start') //Start Menu
@@ -26,6 +28,7 @@ function init() {
   let computer = false
   let turns = 0
   let playerMessage = true
+  let wait = true
   
   //loop empty array (HOW TO MAKE A SIMPLE GRID)
   Array(width * height).join('.').split('.').forEach((num, i) => {
@@ -36,7 +39,6 @@ function init() {
     grid.appendChild(circle)
   })
 
-  //columns
   const col0 = circles.filter((e, i) => i % 7 === 0) //make into object for refactoring
   const col1 = circles.filter((e, i) => i % 7 === 1)
   const col2 = circles.filter((e, i) => i % 7 === 2)
@@ -51,6 +53,23 @@ function init() {
     if (!computer){
       playerGo = !playerGo
     }
+  }
+
+  function columnFunctionsP1(){
+    playguns()
+    draw()
+    changePlayer()
+    compturn()
+    changeWait()
+    turns++
+  }
+
+  function columnFunctionsP2(){
+    playguns2()
+    draw()
+    changePlayer()
+    changeWait()
+    turns++
   }
 
   //Event listener for music button
@@ -110,6 +129,16 @@ function init() {
     finish.style.display = 'none'
   }
 
+  // play computer
+  function compturn(){
+    if (computer){
+      setTimeout(createMove, 300)
+      draw()
+      setTimeout(changeWait, 200)
+      turns++
+    }
+  }
+
   //reset
   resetbtn.addEventListener('click', reset)
   //Clears grid and goes back to menu
@@ -150,7 +179,6 @@ function init() {
     if (turns === 41){
       wipevals() // computer = false, turns = 0, inplay = !inplay
       resetbtn.style.visibility = 'hidden'
-      yeehaw() //Plays cowboy sound
       setTimeout(finMenu, 2000)
       winner.innerHTML = '<br>It\'s a tie!'
     }
@@ -180,44 +208,155 @@ function init() {
     }
   }
 
+  function changeWait(){
+    wait = !wait
+  }
+
   // wipes values
   function wipevals(){
     computer = false
     turns = 0
     inPlay = !inPlay
     playerMessage = true
+    wait = true
   }
 
 
   // Code for AI
 
+  // //columns
+  // const columns = {
+  //   i: circles.filter((e, i) => i % 7 === 0),
+  //   ii: circles.filter((e, i) => i % 7 === 1),
+  //   iii: circles.filter((e, i) => i % 7 === 2),
+  //   iiii: circles.filter((e, i) => i % 7 === 3),
+  //   iiiii: circles.filter((e, i) => i % 7 === 4),
+  //   iiiiii: circles.filter((e, i) => i % 7 === 5),
+  //   iiiiiii: circles.filter((e, i) => i % 7 === 6)
+  // }
+
+  function createMove(){
+    const arrayChoice = [0,0,0,0,0,0,0]
+    arrayChoice[0] = 0
+    arrayChoice[1] = 0
+    arrayChoice[2] = 0
+    arrayChoice[3] = 4
+    arrayChoice[4] = 0
+    arrayChoice[5] = 0
+    arrayChoice[6] = 0
+
+    const maxNumber = Math.max(...arrayChoice)
+    const playHere = arrayChoice.indexOf(maxNumber)
+
+    if (playHere === 0) {
+      dropColor02()
+      checkWinC0P2()
+    }
+    if (playHere === 1) {
+      dropColor12()
+      checkWinC1P2()
+    }
+    if (playHere === 2) {
+      dropColor22()
+      checkWinC2P2()
+    }
+    if (playHere === 3) {
+      dropColor32()
+      checkWinC3P2()
+    }
+    if (playHere === 4) {
+      dropColor42()
+      checkWinC4P2()
+    }
+    if (playHere === 5) {
+      dropColor52()
+      checkWinC5P2()
+    }
+    if (playHere === 6) {
+      dropColor62()
+      checkWinC6P2()
+    }
+  }
+
+  // function checkMove(){
+    
+  //   let spot = col3.indexOf(col3.find(e => e.classList.contains(P1Cls) || e.classList.contains(P2Cls)))
+  //   spot = spot - 1 // find available spot in coloumn
+  //   if (spot === -2){ // if empty return it as 5
+  //     spot = 5
+  //   }
+  //   const a = 3
+  //   const col = col
+  //   if (col + a + [spot + 1].classList.contains(P2Cls)) {
+  //     console.log('work')
+  //   }
+    
+  // console.log(spot)
+      
+      
+      
+  // console.log(typeof(col + `${a}` + `[${spot + i}]` + class2))
+  // const vertcheck = col + `${a}` + `[${spot + i}]` + class2
+  // console.log(vertcheck)
+  // if (vertcheck){
+  //   console.log('+1')
+  // }
+  //}
+  // }
+  
+  
+  // for()
+  // console.log(columns.`${i}`)
+
+
   // when the user clicks AI drops a color
+  // AI finds available spot
+  // let spot1 = 5
+  // spot1 = col1.indexOf(col1.find(e => e.classList.contains(P1Cls) || e.classList.contains(P2Cls)) - 1
+  // looks around spot
+  // if spot is in a line of two, + 2 to decision
+
+  // arrayChoice[1] = 2
 
   // scores for AI
 
   // + 4 for center column or col3
-  // + 2 for lines of two
-  // + 5 for lines of three
+  // + 2 for colour found in line
+ 
   // find AI's colors (1)
   // place colors in columns
   // [0 0 0 0 0
   //  0 0 0 0 0
-  //  0 0 1 0 0
-  //  0 0 2 0 0]
-  
-  // columns.find first color
-  // col3[2] all others is colx[5]
+  //  0 2 6 0 0
+  //  0 x 1 2 2]
+
+  // if (col1[spot1 + 1].classList(P2Cls) && col1[spot1 + 2].classList(P2Cls)) + 5 to arrayChoice[1] two below
+  // if (col1[spot1 + 1].classList(P2Cls) && col1[spot1 + 2].classList(P2Cls) && col1[spot1 + 3].classList(P2Cls)) + 20 to arrayChoice[1] three below
   
 
-  // so a line of 2 would be + 2
-  // columnx[aiColor] && columx[aiColor - 1] one above
+  // if (col`${a}[spot + i].classList(P2Cls)) cycle through below + 2 for each true
+  // if (col`${a}[spot + i].classList(P1Cls)) cycle through below - 2 for each true
 
+  // if (col`${a - i}`[spot].classList(P2Cls)) cycle through left + 2 for each true
+  // if (col`${a - i}`[spot].classList(P1Cls)) cycle through left - 2 for each true
+
+  // if (col1[spot1 + 1].classList(P2Cls)){+ 2 to arrayChoice[1]} one below
+  // if (col1[spot1 + 2].classList(P2Cls)){+ 2 to arrayChoice[1]} one below
+  // if (col1[spot1 + 3].classList(P2Cls)){+ 2 to arrayChoice[1]} one below
+  // if (col1[spot1 + 4].classList(P2Cls)){+ 2 to arrayChoice[1]} one below
+ 
+
+  // if (col2[spot1].classList(P2Cls)) + 2 to arrayChoice[1] one below
   // columnx[aiColor] && columx + 1 [aiColor] horizontal right
   // columx[aiColor] && columx + 2 [aiColor] horizontal right
   // columx[aiColor] && columx + 3 [aiColor] horizontal right
-  // columx[aiColor] && columx + 4 [aiColor] horizontal right
+ 
   
   // columnx[aiColor] && columx - 1 [aiColor] horizontal left
+  // columnx[aiColor] && columx - 2 [aiColor] horizontal left
+  // columnx[aiColor] && columx - 1 [aiColor] horizontal left
+  // columnx[aiColor] && columx - 4 [aiColor] horizontal left
+  
   // columnx[aiColor] && columx - 1 [aiColor + 1] diagonal down left
   // columnx[aiColor] && columx - 1 [aiColor - 1] diagonal up left
   // columnx[aiColor] && columx + 1 [aiColor + 1] diagonal down right
@@ -250,8 +389,7 @@ function init() {
   // Winning sound
   function yeehaw() { //Plays cowboy sound
     if (musicplaying) {
-      soundFX.src = '../starter-code/assets/yeehaw.m //Plays cowboy soundp3'
-      return soundFX.play()
+      soundFX3.play()
     }
   }
 
@@ -259,6 +397,9 @@ function init() {
   function playguns() {
     if (musicplaying) {
       const randomNum = (Math.ceil(Math.random() * 10))
+      if (randomNum > 5) {
+        randomNum - 4
+      }
       switch (randomNum){
         case 1:
           soundFX.src = '../starter-code/assets/Gun1.mp3'
@@ -280,91 +421,58 @@ function init() {
           soundFX.src = '../starter-code/assets/Gun5.mp3'
           soundFX.play()
           break
-        case 6:
-          soundFX.src = '../starter-code/assets/Gun6.mp3'
-          soundFX.play()
-          break
-        case 7:
-          soundFX.src = '../starter-code/assets/Gun7.mp3'
-          soundFX.play()
-          break
-        case 8:
-          soundFX.src = '../starter-code/assets/Gun8.mp3'
-          soundFX.play()
-          break
-        case 9:
-          soundFX.src = '../starter-code/assets/Gun9.mp3'
-          soundFX.play()
-          break
-        case 10:
-          soundFX.src = '../starter-code/assets/Gun10.mp3'
-          soundFX.play()
-          break
         default:
-          soundFX.src = '../starter-code/assets/Gun1.mp3'
-          soundFX.play()
+          soundFX2.src = '../starter-code/assets/Gun1.mp3'
+          soundFX2.play()
       }
     }
   }
-
-  function createMove(){
-    const arrayChoice = [0,0,0,0,0,0,0]
-    arrayChoice[0] = 0
-    arrayChoice[1] = 0
-    arrayChoice[2] = 0
-    arrayChoice[3] = 4
-    arrayChoice[4] = 0
-    arrayChoice[5] = 0
-    arrayChoice[6] = 0
-
-    const maxNumber = Math.max(...arrayChoice)
-    const playHere = arrayChoice.indexOf(maxNumber)
-
-    if (playHere === 0) {
-      dropColor02()
-      checkWinC0P2()
-    }
-
-    if (playHere === 1) {
-      dropColor12()
-      checkWinC1P2()
-    }
-
-    if (playHere === 3) {
-      dropColor32()
-      checkWinC3P2()
-    }
-  }
-
-  function compturn(){
-    if (computer){
-      setTimeout(createMove, 100)
-      playguns()
-      draw()
-      turns++
+  function playguns2() {
+    if (musicplaying) {
+      const randomNum = (Math.ceil(Math.random() * 10))
+      if (randomNum < 5) {
+        randomNum + 5
+      }
+      switch (randomNum){
+        case 6:
+          soundFX2.src = '../starter-code/assets/Gun6.mp3'
+          soundFX2.play()
+          break
+        case 7:
+          soundFX2.src = '../starter-code/assets/Gun7.mp3'
+          soundFX2.play()
+          break
+        case 8:
+          soundFX2.src = '../starter-code/assets/Gun8.mp3'
+          soundFX2.play()
+          break
+        case 9:
+          soundFX2.src = '../starter-code/assets/Gun9.mp3'
+          soundFX2.play()
+          break
+        case 10:
+          soundFX2.src = '../starter-code/assets/Gun10.mp3'
+          soundFX2.play()
+          break
+        default:
+          soundFX2.src = '../starter-code/assets/Gun1.mp3'
+          soundFX2.play()
+      }
     }
   }
-
 
   col0.forEach(e => { // Listener for column 0
     e.addEventListener('click', () => {
       if (col0[0].classList.contains(P1Cls) || col0[0].classList.contains(P2Cls)) return // do nothing if col is full or winner is found
       if (!inPlay) return
-      if (playerGo) {
+      if (playerGo && wait) {
         dropColor01()
-        playguns()
-        draw()
         checkWinC0P1()
-        changePlayer()
-        compturn()
-        turns++
+        columnFunctionsP1()
       } else if (!playerGo && !computer) {
         dropColor02()
-        playguns()
-        draw()
         checkWinC0P2()
-        changePlayer()
-        turns++
+        columnFunctionsP2()
       }
     })
   })
@@ -473,19 +581,12 @@ function init() {
       if (!inPlay) return
       if (playerGo) {
         dropColor11()
-        playguns()
-        draw()
         checkWinC1P1()
-        changePlayer()
-        compturn()
-        turns++
+        columnFunctionsP1()
       } else if (!playerGo) {
         dropColor12()
-        playguns()
-        draw()
         checkWinC1P2()
-        changePlayer()
-        turns++
+        columnFunctionsP2()
       }
     })
   })
@@ -646,19 +747,12 @@ function init() {
       if (!inPlay) return
       if (playerGo) {
         dropColor21()
-        playguns()
-        draw()
         checkWinC2P1()
-        changePlayer()
-        compturn()
-        turns++
+        columnFunctionsP1()
       } else if (!playerGo) {
         dropColor22()
-        playguns()
-        draw()
         checkWinC2P2()
-        changePlayer()
-        turns++
+        columnFunctionsP2()
       }
     })
   })
@@ -867,19 +961,12 @@ function init() {
       if (!inPlay) return
       if (playerGo) {
         dropColor31()
-        playguns()
-        draw()
         checkWinC3P1()
-        changePlayer()
-        compturn()
-        turns++
+        columnFunctionsP1()
       } else if (!playerGo) {
         dropColor32()
-        playguns()
-        draw()
         checkWinC3P2()
-        changePlayer()
-        turns++
+        columnFunctionsP2()
       }
     })
   })
@@ -1137,19 +1224,12 @@ function init() {
       if (!inPlay) return
       if (playerGo) {
         dropColor41()
-        playguns()
-        draw()
         checkWinC4P1()
-        changePlayer()
-        compturn()
-        turns++
+        columnFunctionsP1()
       } else if (!playerGo) {
         dropColor42()
-        playguns()
-        draw()
         checkWinC4P2()
-        changePlayer()
-        turns++
+        columnFunctionsP2()
       }
     })
   })
@@ -1358,19 +1438,12 @@ function init() {
       if (!inPlay) return
       if (playerGo) {
         dropColor51()
-        playguns()
-        draw()
         checkWinC5P1()
-        changePlayer()
-        compturn()
-        turns++
+        columnFunctionsP1()
       } else if (!playerGo) {
         dropColor52()
-        playguns()
-        draw()
         checkWinC5P2()
-        changePlayer()
-        turns++
+        columnFunctionsP2()
       }
     })
   })
@@ -1532,19 +1605,12 @@ function init() {
       if (!inPlay) return
       if (playerGo) {
         dropColor61()
-        playguns()
-        draw()
         checkWinC6P1()
-        changePlayer()
-        compturn()
-        turns++
+        columnFunctionsP1()
       } else if (!playerGo) {
         dropColor62()
-        playguns()
-        draw()
         checkWinC6P2()
-        changePlayer()
-        turns++
+        columnFunctionsP2()
       }
     })
   })
