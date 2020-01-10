@@ -77,11 +77,10 @@ function init() {
   function playSound() {
     if (!musicplaying){
       musicplaying = !musicplaying
-      music.src = '../starter-code/assets/westsong.mp3' 
-      musicbttn.src = '../starter-code/assets/banjo_off.png'
+      musicbttn.src = '../PROJECT-01/assets/banjo_off.png'
       music.play()
     } else if (musicplaying){
-      musicbttn.src = '../starter-code/assets/banjo.png'
+      musicbttn.src = '../PROJECT-01/assets/banjo.png'
       musicplaying = !musicplaying
       music.pause()
     }
@@ -224,18 +223,56 @@ function init() {
 
   // Code for AI
 
-  // //columns
-  // const columns = {
-  //   i: circles.filter((e, i) => i % 7 === 0),
-  //   ii: circles.filter((e, i) => i % 7 === 1),
-  //   iii: circles.filter((e, i) => i % 7 === 2),
-  //   iiii: circles.filter((e, i) => i % 7 === 3),
-  //   iiiii: circles.filter((e, i) => i % 7 === 4),
-  //   iiiiii: circles.filter((e, i) => i % 7 === 5),
-  //   iiiiiii: circles.filter((e, i) => i % 7 === 6)
-  // }
+  //columns
+  const columns = {
+    i: circles.filter((e, i) => i % 7 === 0),
+    ii: circles.filter((e, i) => i % 7 === 1),
+    iii: circles.filter((e, i) => i % 7 === 2),
+    iiii: circles.filter((e, i) => i % 7 === 3),
+    iiiii: circles.filter((e, i) => i % 7 === 4),
+    iiiiii: circles.filter((e, i) => i % 7 === 5),
+    iiiiiii: circles.filter((e, i) => i % 7 === 6)
+  }
+
+  const col = Object.keys(columns)
+
+  function checkMove(){
+    for (let i = 0; i < col.length; i++){
+      let count = 0
+      const curntCol = columns[col[i]] // Loop through each coloumn
+      let avaiSpot = curntCol.indexOf(curntCol.find(e => e.classList.contains(P1Cls) || e.classList.contains(P2Cls)))
+      avaiSpot-- //find spot above a filled spot
+      if (avaiSpot === -2){ // if empty return it as 5
+        avaiSpot = 5
+      }
+      const below = avaiSpot + 1
+      //verticle check
+      console.log(curntCol)
+      if (avaiSpot === 5) count = 0 // gets to the end of the second coloum and stops
+    
+      if (curntCol[below]){
+        console.log('below')
+      }
+    
+      // }
+
+    // 
+    // if (belowAvaiSpot === 6) return
+    // console.log(count)
+    // console.log(belowAvaiSpot)
+    // if (belowAvaiSpot < 6) {
+    //   for (let b = 1; b < 5; b++){
+    //     if (curntCol[belowAvaiSpot + b].classList.contains(P2Cls)) {
+    //       count++
+    //       console.log('hi')
+    //       console.log(count)
+    //     } 
+    //   }
+    }
+  }
 
   function createMove(){
+    checkMove()
     const arrayChoice = [0,0,0,0,0,0,0]
     arrayChoice[0] = 0
     arrayChoice[1] = 0
@@ -402,27 +439,27 @@ function init() {
       }
       switch (randomNum){
         case 1:
-          soundFX.src = '../starter-code/assets/Gun1.mp3'
+          soundFX.src = '../PROJECT-01/assets/Gun1.mp3'
           soundFX.play()
           break
         case 2:
-          soundFX.src = '../starter-code/assets/Gun2.mp3'
+          soundFX.src = '../PROJECT-01/assets/Gun2.mp3'
           soundFX.play()
           break
         case 3:
-          soundFX.src = '../starter-code/assets/Gun3.mp3'
+          soundFX.src = '../PROJECT-01/assets/Gun3.mp3'
           soundFX.play()
           break
         case 4:
-          soundFX.src = '../starter-code/assets/Gun4.mp3'
+          soundFX.src = '../PROJECT-01/assets/Gun4.mp3'
           soundFX.play()
           break
         case 5:
-          soundFX.src = '../starter-code/assets/Gun5.mp3'
+          soundFX.src = '../PROJECT-01/assets/Gun5.mp3'
           soundFX.play()
           break
         default:
-          soundFX2.src = '../starter-code/assets/Gun1.mp3'
+          soundFX2.src = '../PROJECT-01/assets/Gun1.mp3'
           soundFX2.play()
       }
     }
@@ -435,27 +472,27 @@ function init() {
       }
       switch (randomNum){
         case 6:
-          soundFX2.src = '../starter-code/assets/Gun6.mp3'
+          soundFX2.src = '../PROJECT-01/assets/Gun6.mp3'
           soundFX2.play()
           break
         case 7:
-          soundFX2.src = '../starter-code/assets/Gun7.mp3'
+          soundFX2.src = '../PROJECT-01/assets/Gun7.mp3'
           soundFX2.play()
           break
         case 8:
-          soundFX2.src = '../starter-code/assets/Gun8.mp3'
+          soundFX2.src = '../PROJECT-01/assets/Gun8.mp3'
           soundFX2.play()
           break
         case 9:
-          soundFX2.src = '../starter-code/assets/Gun9.mp3'
+          soundFX2.src = '../PROJECT-01/assets/Gun9.mp3'
           soundFX2.play()
           break
         case 10:
-          soundFX2.src = '../starter-code/assets/Gun10.mp3'
+          soundFX2.src = '../PROJECT-01/assets/Gun10.mp3'
           soundFX2.play()
           break
         default:
-          soundFX2.src = '../starter-code/assets/Gun1.mp3'
+          soundFX2.src = '../PROJECT-01/assets/Gun1.mp3'
           soundFX2.play()
       }
     }
