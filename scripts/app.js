@@ -77,10 +77,10 @@ function init() {
   function playSound() {
     if (!musicplaying){
       musicplaying = !musicplaying
-      musicbttn.src = '../PROJECT-01/assets/banjo_off.png'
+      musicbttn.src = 'assets/banjo_off.png'
       music.play()
     } else if (musicplaying){
-      musicbttn.src = '../PROJECT-01/assets/banjo.png'
+      musicbttn.src = 'assets/banjo.png'
       musicplaying = !musicplaying
       music.pause()
     }
@@ -439,27 +439,27 @@ function init() {
       }
       switch (randomNum){
         case 1:
-          soundFX.src = '../PROJECT-01/assets/Gun1.mp3'
+          soundFX.src = 'assets/Gun1.mp3'
           soundFX.play()
           break
         case 2:
-          soundFX.src = '../PROJECT-01/assets/Gun2.mp3'
+          soundFX.src = 'assets/Gun2.mp3'
           soundFX.play()
           break
         case 3:
-          soundFX.src = '../PROJECT-01/assets/Gun3.mp3'
+          soundFX.src = 'assets/Gun3.mp3'
           soundFX.play()
           break
         case 4:
-          soundFX.src = '../PROJECT-01/assets/Gun4.mp3'
+          soundFX.src = 'assets/Gun4.mp3'
           soundFX.play()
           break
         case 5:
-          soundFX.src = '../PROJECT-01/assets/Gun5.mp3'
+          soundFX.src = 'assets/Gun5.mp3'
           soundFX.play()
           break
         default:
-          soundFX2.src = '../PROJECT-01/assets/Gun1.mp3'
+          soundFX2.src = 'assets/Gun1.mp3'
           soundFX2.play()
       }
     }
@@ -472,27 +472,27 @@ function init() {
       }
       switch (randomNum){
         case 6:
-          soundFX2.src = '../PROJECT-01/assets/Gun6.mp3'
+          soundFX2.src = 'assets/Gun6.mp3'
           soundFX2.play()
           break
         case 7:
-          soundFX2.src = '../PROJECT-01/assets/Gun7.mp3'
+          soundFX2.src = 'assets/Gun7.mp3'
           soundFX2.play()
           break
         case 8:
-          soundFX2.src = '../PROJECT-01/assets/Gun8.mp3'
+          soundFX2.src = 'assets/Gun8.mp3'
           soundFX2.play()
           break
         case 9:
-          soundFX2.src = '../PROJECT-01/assets/Gun9.mp3'
+          soundFX2.src = 'assets/Gun9.mp3'
           soundFX2.play()
           break
         case 10:
-          soundFX2.src = '../PROJECT-01/assets/Gun10.mp3'
+          soundFX2.src = 'assets/Gun10.mp3'
           soundFX2.play()
           break
         default:
-          soundFX2.src = '../PROJECT-01/assets/Gun1.mp3'
+          soundFX2.src = 'assets/Gun1.mp3'
           soundFX2.play()
       }
     }
