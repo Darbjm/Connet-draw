@@ -30,6 +30,8 @@ img{
 div.container{
   display: flex;
   justify-content: space-evenly;
+  align-items: center;
+  height: 60%;
 }
 
 div.side{

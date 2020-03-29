@@ -1,4 +1,3 @@
-
 function init() {
   //  DOM Variables
   const grid = document.querySelector('.grid') //The game grid
@@ -238,23 +237,80 @@ function init() {
 
   function checkMove(){
     for (let i = 0; i < col.length; i++){
-      let count = 0
+      arrayChoice[i] = null
       const curntCol = columns[col[i]] // Loop through each coloumn
       let avaiSpot = curntCol.indexOf(curntCol.find(e => e.classList.contains(P1Cls) || e.classList.contains(P2Cls)))
+      let below = avaiSpot + 1
+
       avaiSpot-- //find spot above a filled spot
       if (avaiSpot === -2){ // if empty return it as 5
         avaiSpot = 5
       }
-      const below = avaiSpot + 1
-      //verticle check
-      console.log(curntCol)
-      if (avaiSpot === 5) count = 0 // gets to the end of the second coloum and stops
-    
-      if (curntCol[below]){
-        console.log('below')
+
+      if (curntCol.indexOf(curntCol.find(e => e.classList.contains(P1Cls) || e.classList.contains(P2Cls))) === 0) {
+        return arrayChoice[i] = 0 // dont play in a full colomn
       }
-    
+
+      if (i === 3) {
+        arrayChoice[i] += 4 // make the central coloumn preferable
+      }
+  
+      //verticle check own color
+      
+      if (below < 6) {
+        if (curntCol[below].classList.contains(P2Cls)){
+          arrayChoice[i] += 2
+          console.log(arrayChoice[i])
+          below++
+        } if (below < 6){
+          if (curntCol[below].classList.contains(P2Cls)){
+            arrayChoice[i] += 5 
+            console.log(arrayChoice[i])
+            below++
+          } if (below < 6){
+            if (curntCol[below].classList.contains(P2Cls)){
+              arrayChoice[i] += 1000
+              console.log(arrayChoice[i])
+            }
+          }
+        }
+      }
+
+      //verticle check opponents color
+      if (below < 6) {
+        if (curntCol[below].classList.contains(P1Cls)){
+          arrayChoice[i] += 2
+          console.log(arrayChoice[i])
+          below++
+        } if (below < 6){
+          if (curntCol[below].classList.contains(P1Cls)){
+            arrayChoice[i] += 5 
+            console.log(arrayChoice[i])
+            below++
+          } if (below < 6){
+            if (curntCol[below].classList.contains(P1Cls)){
+              arrayChoice[i] += 1000
+              console.log(arrayChoice[i])
+            }
+          }
+        }
+      }
+
+      // horizontal check own color
+      // const colOneRight = columns[col[i + 1]]
+
+      // if (i < 6){
+      //   console.log(colOneRight[avaiSpot])
+      //   if (colOneRight[avaiSpot].classList.contains(P2Cls)){
+      //     arrayChoice[i] += 2
+      //     console.log(arrayChoice[i])
+      //   }
       // }
+        
+      
+        
+     
+      // } // gets to the end of the second coloum and stops
 
     // 
     // if (belowAvaiSpot === 6) return
@@ -271,16 +327,17 @@ function init() {
     }
   }
 
+  const arrayChoice = [0,0,0,0,0,0,0]
+
   function createMove(){
     checkMove()
-    const arrayChoice = [0,0,0,0,0,0,0]
-    arrayChoice[0] = 0
-    arrayChoice[1] = 0
-    arrayChoice[2] = 0
-    arrayChoice[3] = 4
-    arrayChoice[4] = 0
-    arrayChoice[5] = 0
-    arrayChoice[6] = 0
+    arrayChoice[0]
+    arrayChoice[1]
+    arrayChoice[2]
+    arrayChoice[3]
+    arrayChoice[4]
+    arrayChoice[5]
+    arrayChoice[6]
 
     const maxNumber = Math.max(...arrayChoice)
     const playHere = arrayChoice.indexOf(maxNumber)
