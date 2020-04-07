@@ -95,6 +95,7 @@ function init() {
   function singleStartGame(){
     turns = 0
     playguns()
+    changeWait()
     computer = true
     playerGo = true
     inPlay = true
@@ -105,6 +106,7 @@ function init() {
       side.style.display = 'flex'
     })
     finish.style.display = 'none'
+    compturn()
   }
 
   //start game 2 player
@@ -132,7 +134,6 @@ function init() {
     if (computer){
       setTimeout(createMove, 300)
       draw()
-      setTimeout(changeWait, 200)
       turns++
     }
   }
@@ -181,20 +182,23 @@ function init() {
       winner.innerHTML = '<br>It\'s a tie!'
     }
   }
+
+  function compWin(){
+    winner.innerHTML = '<br>You lose'
+    wipevals() // computer = false, turns = 0, inplay = !inplay
+    resetbtn.style.visibility = 'hidden'
+    yeehaw() //Plays cowboy sound
+    setTimeout(finMenu, 2000)
+  }
   
   //Choose winner
   function checkWin(){
     if (computer){
-      if (!playerMessage){
-        winner.innerHTML = '<br>Congrats You win!'
-      } else {
-        winner.innerHTML = '<br>You lose'
-      }
+      winner.innerHTML = '<br>Congrats You win!'
       wipevals() // computer = false, turns = 0, inplay = !inplay
       resetbtn.style.visibility = 'hidden'
       yeehaw() //Plays cowboy sound
-      setTimeout(finMenu, 2000)
-      
+      setTimeout(finMenu, 2000)    
     } else {
       wipevals() // computer = false, turns = 0, inplay = !inplay
       resetbtn.style.visibility = 'hidden'
@@ -219,7 +223,6 @@ function init() {
     wait = true
   }
 
-
   // Code for AI
 
   //columns
@@ -237,246 +240,518 @@ function init() {
 
   function checkMove(){
     for (let i = 0; i < col.length; i++){
-      arrayChoice[i] = null
+      arrayChoice[i] = 0
       const curntCol = columns[col[i]] // Loop through each coloumn
       let avaiSpot = curntCol.indexOf(curntCol.find(e => e.classList.contains(P1Cls) || e.classList.contains(P2Cls)))
-      let below = avaiSpot + 1
-
       avaiSpot-- //find spot above a filled spot
-      if (avaiSpot === -2){ // if empty return it as 5
+      if (avaiSpot === -2){ // if column empty return it as 5
         avaiSpot = 5
       }
+      if (avaiSpot !== -1) {
 
-      if (curntCol.indexOf(curntCol.find(e => e.classList.contains(P1Cls) || e.classList.contains(P2Cls))) === 0) {
-        return arrayChoice[i] = 0 // dont play in a full colomn
-      }
+        const colOneRight = columns[col[i + 1]]
+        const colTwoRight = columns[col[i + 2]]
+        const colThreeRight = columns[col[i + 3]]
 
-      if (i === 3) {
-        arrayChoice[i] += 4 // make the central coloumn preferable
-      }
-  
-      //verticle check own color
-      
-      if (below < 6) {
-        if (curntCol[below].classList.contains(P2Cls)){
-          arrayChoice[i] += 2
-          console.log(arrayChoice[i])
-          below++
-        } if (below < 6){
-          if (curntCol[below].classList.contains(P2Cls)){
-            arrayChoice[i] += 5 
-            console.log(arrayChoice[i])
-            below++
-          } if (below < 6){
-            if (curntCol[below].classList.contains(P2Cls)){
-              arrayChoice[i] += 1000
-              console.log(arrayChoice[i])
+        // horizontal right check own color
+        if (i < 6){
+          if (colOneRight[avaiSpot].classList.contains(P2Cls)){
+            arrayChoice[i] += 2
+            if (i < 5){
+              if (colTwoRight[avaiSpot].classList.contains(P2Cls)){
+                arrayChoice[i] += 5
+                if (i < 4){
+                  if (colThreeRight[avaiSpot].classList.contains(P2Cls)){
+                    arrayChoice[i] += 1300
+                  }
+                }
+              }
             }
           }
         }
-      }
 
-      //verticle check opponents color
-      if (below < 6) {
-        if (curntCol[below].classList.contains(P1Cls)){
-          arrayChoice[i] += 2
-          console.log(arrayChoice[i])
-          below++
-        } if (below < 6){
-          if (curntCol[below].classList.contains(P1Cls)){
-            arrayChoice[i] += 5 
-            console.log(arrayChoice[i])
-            below++
-          } if (below < 6){
-            if (curntCol[below].classList.contains(P1Cls)){
-              arrayChoice[i] += 1000
-              console.log(arrayChoice[i])
+        // horizontal right check opponents color
+        if (i < 6){
+          if (colOneRight[avaiSpot].classList.contains(P1Cls)){
+            arrayChoice[i] += 2
+            if (i < 5){
+              if (colTwoRight[avaiSpot].classList.contains(P1Cls)){
+                arrayChoice[i] += 5
+                if (i < 4){
+                  if (colThreeRight[avaiSpot].classList.contains(P1Cls)){
+                    arrayChoice[i] += 1000
+                  }
+                }
+              }
             }
           }
         }
-      }
 
-      // horizontal check own color
-      // const colOneRight = columns[col[i + 1]]
+        const colOneLeft = columns[col[i - 1]]
+        const colTwoLeft = columns[col[i - 2]]
+        const colThreeLeft = columns[col[i - 3]]
 
-      // if (i < 6){
-      //   console.log(colOneRight[avaiSpot])
-      //   if (colOneRight[avaiSpot].classList.contains(P2Cls)){
-      //     arrayChoice[i] += 2
-      //     console.log(arrayChoice[i])
-      //   }
-      // }
-        
+        // horizontal Left check own color
+        if (i > 0){
+          if (colOneLeft[avaiSpot].classList.contains(P2Cls)){
+            arrayChoice[i] += 2
+            if (i > 1){
+              if (colTwoLeft[avaiSpot].classList.contains(P2Cls)){
+                arrayChoice[i] += 5
+                if (i > 2){
+                  if (colThreeLeft[avaiSpot].classList.contains(P2Cls)){
+                    arrayChoice[i] += 1300
+                  }
+                }
+              }
+            }
+          }
+        }
       
-        
-     
-      // } // gets to the end of the second coloum and stops
+        // horizontal Left check opponents color
+        if (i > 0){
+          if (colOneLeft[avaiSpot].classList.contains(P1Cls)){
+            arrayChoice[i] += 2
+            if (i > 1){
+              if (colTwoLeft[avaiSpot].classList.contains(P1Cls)){
+                arrayChoice[i] += 5
+                if (i > 2){
+                  if (colThreeLeft[avaiSpot].classList.contains(P1Cls)){
+                    arrayChoice[i] += 1000
+                  }
+                }
+              }
+            }
+          }
+        }
 
-    // 
-    // if (belowAvaiSpot === 6) return
-    // console.log(count)
-    // console.log(belowAvaiSpot)
-    // if (belowAvaiSpot < 6) {
-    //   for (let b = 1; b < 5; b++){
-    //     if (curntCol[belowAvaiSpot + b].classList.contains(P2Cls)) {
-    //       count++
-    //       console.log('hi')
-    //       console.log(count)
-    //     } 
-    //   }
-    }
+        // horizontal Both sides check own color
+        if (i > 0 && i < 6) {
+          if (colOneLeft[avaiSpot].classList.contains(P2Cls) && colOneRight[avaiSpot].classList.contains(P2Cls)) {
+            arrayChoice[i] += 5
+            if (i > 1 && i < 6) {
+              if (colOneLeft[avaiSpot].classList.contains(P2Cls) && colTwoLeft[avaiSpot].classList.contains(P2Cls) && colOneRight[avaiSpot].classList.contains(P2Cls)) {
+                arrayChoice[i] += 1300
+              }
+            } if (i > 0 && i < 5) {
+              if (colOneLeft[avaiSpot].classList.contains(P2Cls) && colTwoRight[avaiSpot].classList.contains(P2Cls) && colOneRight[avaiSpot].classList.contains(P2Cls)) {
+                arrayChoice[i] += 1300
+              }
+            }
+          }
+        }
+
+        // horizontal Both sides check opponents color
+        if (i > 0 && i < 6) {
+          if (colOneLeft[avaiSpot].classList.contains(P1Cls) && colOneRight[avaiSpot].classList.contains(P1Cls)) {
+            arrayChoice[i] += 5
+            if (i > 1 && i < 6) {
+              if (colOneLeft[avaiSpot].classList.contains(P1Cls) && colTwoLeft[avaiSpot].classList.contains(P1Cls) && colOneRight[avaiSpot].classList.contains(P1Cls)) {
+                arrayChoice[i] += 1000
+              }
+            } if (i > 0 && i < 5) {
+              if (colOneLeft[avaiSpot].classList.contains(P1Cls) && colTwoRight[avaiSpot].classList.contains(P1Cls) && colOneRight[avaiSpot].classList.contains(P1Cls)) {
+                arrayChoice[i] += 1000
+              }
+            }
+          }
+        }
+
+        // diagonal left up check own color
+        if (i > 0 && avaiSpot > 0){
+          if (colOneLeft[avaiSpot - 1].classList.contains(P2Cls)){
+            arrayChoice[i] += 2
+            if (i > 1 && avaiSpot > 1){
+              if (colTwoLeft[avaiSpot - 2].classList.contains(P2Cls)){
+                arrayChoice[i] += 5
+                if (i > 2 && avaiSpot > 2){
+                  if (colThreeLeft[avaiSpot - 3].classList.contains(P2Cls)){
+                    arrayChoice[i] += 1300
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // diagonal left down check own color
+        if (i > 0 && avaiSpot < 5){
+          if (colOneLeft[avaiSpot + 1].classList.contains(P2Cls)){
+            arrayChoice[i] += 2
+            if (i > 1 && avaiSpot < 4){
+              if (colTwoLeft[avaiSpot + 2].classList.contains(P2Cls)){
+                arrayChoice[i] += 5
+                if (i > 2 && avaiSpot < 3){
+                  if (colThreeLeft[avaiSpot + 3].classList.contains(P2Cls)){
+                    arrayChoice[i] += 1300
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // diagonal left up check opponents color
+        if (i > 0 && avaiSpot > 0){
+          if (colOneLeft[avaiSpot - 1].classList.contains(P1Cls)){
+            arrayChoice[i] += 2
+            if (i > 1 && avaiSpot > 1){
+              if (colTwoLeft[avaiSpot - 2].classList.contains(P1Cls)){
+                arrayChoice[i] += 5
+                if (i > 2 && avaiSpot > 2){
+                  if (colThreeLeft[avaiSpot - 3].classList.contains(P1Cls)){
+                    arrayChoice[i] += 1000
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // diagonal left down check opponents color
+        if (i > 0 && avaiSpot < 5){
+          if (colOneLeft[avaiSpot + 1].classList.contains(P1Cls)){
+            arrayChoice[i] += 2
+            if (i > 1 && avaiSpot < 4){
+              if (colTwoLeft[avaiSpot + 2].classList.contains(P1Cls)){
+                arrayChoice[i] += 5
+                if (i > 2 && avaiSpot < 3){
+                  if (colThreeLeft[avaiSpot + 3].classList.contains(P1Cls)){
+                    arrayChoice[i] += 1000
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // diagonal middle of 3 check own color
+        if (i < 6 && i > 0 && avaiSpot < 5 && avaiSpot > 0){
+          if ((colOneRight[avaiSpot + 1].classList.contains(P2Cls) && colOneLeft[avaiSpot - 1].classList.contains(P2Cls)) || (colOneRight[avaiSpot - 1].classList.contains(P2Cls) && colOneLeft[avaiSpot + 1].classList.contains(P2Cls))) {
+            arrayChoice[i] += 5
+          }
+        }
+        
+        // diagonal middle of 3 check opponents color
+        if (i < 6 && i > 0 && avaiSpot < 5 && avaiSpot > 0){
+          if ((colOneRight[avaiSpot + 1].classList.contains(P1Cls) && colOneLeft[avaiSpot - 1].classList.contains(P1Cls)) || (colOneRight[avaiSpot - 1].classList.contains(P1Cls) && colOneLeft[avaiSpot + 1].classList.contains(P1Cls))) {
+            arrayChoice[i] += 5
+          }
+        }
+
+        // diagonal left down middle check own color
+        if (i > 1 && i < 6 && avaiSpot < 4 && avaiSpot > 0){
+          if (colOneLeft[avaiSpot + 1].classList.contains(P2Cls) && colTwoLeft[avaiSpot + 2].classList.contains(P2Cls) && colOneRight[avaiSpot - 1].classList.contains(P2Cls)){
+            arrayChoice[i] += 1300
+          }
+        }
+
+        // diagonal left down middle check opponents color
+        if (i > 1 && i < 6 && avaiSpot < 4 && avaiSpot > 0){
+          if (colOneLeft[avaiSpot + 1].classList.contains(P1Cls) && colTwoLeft[avaiSpot + 2].classList.contains(P1Cls) && colOneRight[avaiSpot - 1].classList.contains(P1Cls)){
+            arrayChoice[i] += 1000
+          }
+        }
+
+        // diagonal right up middle check own color
+        if (i > 0 && i < 5 && avaiSpot < 5 && avaiSpot > 1){
+          if (colOneLeft[avaiSpot + 1].classList.contains(P2Cls) && colOneRight[avaiSpot - 1].classList.contains(P2Cls) && colTwoRight[avaiSpot - 2].classList.contains(P2Cls)){
+            arrayChoice[i] += 1300
+          }
+        }
+        
+        // diagonal right up middle check opponents color
+        if (i > 0 && i < 5 && avaiSpot < 5 && avaiSpot > 1){
+          if (colOneLeft[avaiSpot + 1].classList.contains(P1Cls) && colOneRight[avaiSpot - 1].classList.contains(P1Cls) && colTwoRight[avaiSpot - 2].classList.contains(P1Cls)){
+            arrayChoice[i] += 1000
+          }
+        }
+
+        // diagonal left up middle check own color
+        if (i > 1 && i < 6 && avaiSpot < 5 && avaiSpot > 1){
+          if (colOneLeft[avaiSpot - 1].classList.contains(P2Cls) && colTwoLeft[avaiSpot - 2].classList.contains(P2Cls) && colOneRight[avaiSpot + 1].classList.contains(P2Cls)){
+            arrayChoice[i] += 1300
+          }
+        }
+
+        // diagonal left up middle check opponents color
+        if (i > 1 && i < 6 && avaiSpot < 5 && avaiSpot > 1){
+          if (colOneLeft[avaiSpot - 1].classList.contains(P1Cls) && colTwoLeft[avaiSpot - 2].classList.contains(P1Cls) && colOneRight[avaiSpot + 1].classList.contains(P1Cls)){
+            arrayChoice[i] += 1000
+          }
+        }
+
+        // diagonal right down middle check own color
+        if (i > 0 && i < 5 && avaiSpot < 4 && avaiSpot > 0){
+          if (colOneRight[avaiSpot + 1].classList.contains(P2Cls) && colTwoRight[avaiSpot + 2].classList.contains(P2Cls) && colOneLeft[avaiSpot - 1].classList.contains(P2Cls)){
+            arrayChoice[i] += 1300
+          }
+        }
+
+        // diagonal right down middle check opponents color
+        if (i > 0 && i < 5 && avaiSpot < 4 && avaiSpot > 0){
+          if (colOneRight[avaiSpot + 1].classList.contains(P1Cls) && colTwoRight[avaiSpot + 2].classList.contains(P1Cls) && colOneLeft[avaiSpot - 1].classList.contains(P1Cls)){
+            arrayChoice[i] += 1000
+          }
+        }
+
+        // diagonal Right up check own color
+        if (i < 6 && avaiSpot > 0){
+          if (colOneRight[avaiSpot - 1].classList.contains(P2Cls)){
+            arrayChoice[i] += 2
+            if (i < 5 && avaiSpot > 1){
+              if (colTwoRight[avaiSpot - 2].classList.contains(P2Cls)){
+                arrayChoice[i] += 5
+                if (i < 4 && avaiSpot > 2){
+                  if (colThreeRight[avaiSpot - 3].classList.contains(P2Cls)){
+                    arrayChoice[i] += 1300
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // diagonal Right down check own color
+        if (i < 6 && avaiSpot < 5){
+          if (colOneRight[avaiSpot + 1].classList.contains(P2Cls)){
+            arrayChoice[i] += 2
+            if (i < 5 && avaiSpot < 4){
+              if (colTwoRight[avaiSpot + 2].classList.contains(P2Cls)){
+                arrayChoice[i] += 5
+                if (i < 4 && avaiSpot < 3){
+                  if (colThreeRight[avaiSpot + 3].classList.contains(P2Cls)){
+                    arrayChoice[i] += 1300
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // diagonal Right up check opponents color
+        if (i < 6 && avaiSpot > 0){
+          if (colOneRight[avaiSpot - 1].classList.contains(P1Cls)){
+            arrayChoice[i] += 2
+            if (i < 5 && avaiSpot > 1){
+              if (colTwoRight[avaiSpot - 2].classList.contains(P1Cls)){
+                arrayChoice[i] += 5
+                if (i < 4 && avaiSpot > 2){
+                  if (colThreeRight[avaiSpot - 3].classList.contains(P1Cls)){
+                    arrayChoice[i] += 1000
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // diagonal Right down check opponents color
+        if (i < 6 && avaiSpot < 5){
+          if (colOneRight[avaiSpot + 1].classList.contains(P1Cls)){
+            arrayChoice[i] += 2
+            if (i < 5 && avaiSpot < 4){
+              if (colTwoRight[avaiSpot + 2].classList.contains(P1Cls)){
+                arrayChoice[i] += 5
+                if (i < 4 && avaiSpot < 3){
+                  if (colThreeRight[avaiSpot + 3].classList.contains(P1Cls)){
+                    arrayChoice[i] += 1000
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // stop computer setting up opponents win on the next round
+        // horizonal left
+        if (i > 2 && avaiSpot > 0 && avaiSpot <= 5) {
+          if (colOneLeft[avaiSpot - 1].classList.contains(P1Cls) && colTwoLeft[avaiSpot - 1].classList.contains(P1Cls) && colThreeLeft[avaiSpot - 1].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        // diagonal left up
+        if (i > 2 && avaiSpot > 3 && avaiSpot < 5) {
+          if (colOneLeft[avaiSpot - 2].classList.contains(P1Cls) && colTwoLeft[avaiSpot - 3].classList.contains(P1Cls) && colThreeLeft[avaiSpot - 4].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        // diagonal left down
+        if (i > 2 && avaiSpot < 4 && avaiSpot >= 0) {
+          if (colOneLeft[avaiSpot].classList.contains(P1Cls) && colTwoLeft[avaiSpot + 1].classList.contains(P1Cls) && colThreeLeft[avaiSpot + 2].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        // horizonal middle
+        if (i > 1 && i < 6 && avaiSpot > 0 && avaiSpot <= 5) {
+          if (colOneLeft[avaiSpot - 1].classList.contains(P1Cls) && colTwoLeft[avaiSpot - 1].classList.contains(P1Cls) && colOneRight[avaiSpot - 1].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        // horizonal right
+        if (i < 4 && avaiSpot > 0 && avaiSpot <= 5) {
+          if (colOneRight[avaiSpot - 1].classList.contains(P1Cls) && colTwoRight[avaiSpot - 1].classList.contains(P1Cls) && colThreeRight[avaiSpot - 1].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        // diagonal right up
+        if (i < 4 && avaiSpot > 3 && avaiSpot < 5) {
+          if (colOneRight[avaiSpot - 2].classList.contains(P1Cls) && colTwoRight[avaiSpot - 3].classList.contains(P1Cls) && colThreeRight[avaiSpot - 4].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+        
+        // diagonal right down
+        if (i < 4 && avaiSpot < 4 && avaiSpot >= 0) {
+          if (colOneRight[avaiSpot].classList.contains(P1Cls) && colTwoRight[avaiSpot + 1].classList.contains(P1Cls) && colThreeRight[avaiSpot + 2].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        // horizonal middle
+        if (i < 5 && i > 0 && avaiSpot > 0 && avaiSpot <= 5) {
+          if (colOneRight[avaiSpot - 1].classList.contains(P1Cls) && colTwoRight[avaiSpot - 1].classList.contains(P1Cls) && colOneLeft[avaiSpot - 1].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        // diagonal middle right up
+        if (i < 5 && i > 0 && avaiSpot > 2 && avaiSpot <= 5) {
+          if (colOneLeft[avaiSpot].classList.contains(P1Cls) && colOneRight[avaiSpot - 2].classList.contains(P1Cls) && colTwoRight[avaiSpot - 3].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        // diagonal middle left up
+        if (i < 6 && i > 1 && avaiSpot > 2 && avaiSpot <= 5) {
+          if (colOneRight[avaiSpot].classList.contains(P1Cls) && colOneLeft[avaiSpot - 2].classList.contains(P1Cls) && colTwoLeft[avaiSpot - 3].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        // diagonal middle right down
+        if (i < 5 && i > 0 && avaiSpot > 1 && avaiSpot < 5) {
+          if (colOneRight[avaiSpot].classList.contains(P1Cls) && colTwoRight[avaiSpot + 1].classList.contains(P1Cls) && colOneLeft[avaiSpot - 2].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        // diagonal middle left down
+        if (i < 6 && i > 1 && avaiSpot > 1 && avaiSpot < 5) {
+          if (colOneLeft[avaiSpot].classList.contains(P1Cls) && colTwoLeft[avaiSpot + 1].classList.contains(P1Cls) && colOneRight[avaiSpot - 2].classList.contains(P1Cls)) {
+            arrayChoice[i] -= 100
+          }
+        }
+
+        //verticle check own color
+        if (avaiSpot < 5) {
+          if (curntCol[avaiSpot + 1].classList.contains(P2Cls)){
+            arrayChoice[i] += 2
+            if (avaiSpot < 4) {
+              if (curntCol[avaiSpot + 1].classList.contains(P2Cls) && curntCol[avaiSpot + 2].classList.contains(P2Cls)){
+                arrayChoice[i] += 5 
+                if (avaiSpot < 3) {
+                  if (curntCol[avaiSpot + 1].classList.contains(P2Cls) && curntCol[avaiSpot + 2].classList.contains(P2Cls) && curntCol[avaiSpot + 3].classList.contains(P2Cls)){
+                    arrayChoice[i] += 1300
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        //verticle check opponents color
+        if (avaiSpot < 5) {
+          if (curntCol[avaiSpot + 1].classList.contains(P1Cls)){
+            arrayChoice[i] += 2
+            if (avaiSpot < 4) {
+              if (curntCol[avaiSpot + 1].classList.contains(P1Cls) && curntCol[avaiSpot + 2].classList.contains(P1Cls)){
+                arrayChoice[i] += 5 
+                if (avaiSpot < 3) {
+                  if (curntCol[avaiSpot + 1].classList.contains(P1Cls) && curntCol[avaiSpot + 2].classList.contains(P1Cls) && curntCol[avaiSpot + 3].classList.contains(P1Cls)){
+                    arrayChoice[i] += 1000
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if ((i === 4 && avaiSpot === 5) || (i === 2 && avaiSpot === 5)) {
+          arrayChoice[i] += 2
+        }
+
+        if (avaiSpot < 1 && arrayChoice[i] < 1000) {
+          arrayChoice[i] = 0
+        }
+        
+        if (avaiSpot < 6 && avaiSpot >= 0) {
+          arrayChoice[i] += 1
+        }
+
+        if (i === 3 && avaiSpot > 0) {
+          arrayChoice[i] += 7
+        }
+      } else arrayChoice[i] = 0
+    } 
   }
 
   const arrayChoice = [0,0,0,0,0,0,0]
 
   function createMove(){
     checkMove()
-    arrayChoice[0]
-    arrayChoice[1]
-    arrayChoice[2]
-    arrayChoice[3]
-    arrayChoice[4]
-    arrayChoice[5]
-    arrayChoice[6]
 
-    const maxNumber = Math.max(...arrayChoice)
-    const playHere = arrayChoice.indexOf(maxNumber)
+    console.log(arrayChoice)
+
+    let maxNumber = Math.max(...arrayChoice)
+    let playHere = arrayChoice.indexOf(maxNumber)
+
+    if (maxNumber === 0) {
+      maxNumber = Math.min(...arrayChoice)
+      playHere = arrayChoice.indexOf(maxNumber)
+    }
 
     if (playHere === 0) {
       dropColor02()
       checkWinC0P2()
+      return changeWait()
     }
     if (playHere === 1) {
       dropColor12()
       checkWinC1P2()
+      return changeWait()
     }
     if (playHere === 2) {
       dropColor22()
       checkWinC2P2()
+      return changeWait()
     }
     if (playHere === 3) {
       dropColor32()
       checkWinC3P2()
+      return changeWait()
     }
     if (playHere === 4) {
       dropColor42()
       checkWinC4P2()
+      return changeWait()
     }
     if (playHere === 5) {
       dropColor52()
       checkWinC5P2()
+      return changeWait()
     }
     if (playHere === 6) {
       dropColor62()
       checkWinC6P2()
+      return changeWait()
     }
   }
-
-  // function checkMove(){
-    
-  //   let spot = col3.indexOf(col3.find(e => e.classList.contains(P1Cls) || e.classList.contains(P2Cls)))
-  //   spot = spot - 1 // find available spot in coloumn
-  //   if (spot === -2){ // if empty return it as 5
-  //     spot = 5
-  //   }
-  //   const a = 3
-  //   const col = col
-  //   if (col + a + [spot + 1].classList.contains(P2Cls)) {
-  //     console.log('work')
-  //   }
-    
-  // console.log(spot)
-      
-      
-      
-  // console.log(typeof(col + `${a}` + `[${spot + i}]` + class2))
-  // const vertcheck = col + `${a}` + `[${spot + i}]` + class2
-  // console.log(vertcheck)
-  // if (vertcheck){
-  //   console.log('+1')
-  // }
-  //}
-  // }
-  
-  
-  // for()
-  // console.log(columns.`${i}`)
-
-
-  // when the user clicks AI drops a color
-  // AI finds available spot
-  // let spot1 = 5
-  // spot1 = col1.indexOf(col1.find(e => e.classList.contains(P1Cls) || e.classList.contains(P2Cls)) - 1
-  // looks around spot
-  // if spot is in a line of two, + 2 to decision
-
-  // arrayChoice[1] = 2
-
-  // scores for AI
-
-  // + 4 for center column or col3
-  // + 2 for colour found in line
- 
-  // find AI's colors (1)
-  // place colors in columns
-  // [0 0 0 0 0
-  //  0 0 0 0 0
-  //  0 2 6 0 0
-  //  0 x 1 2 2]
-
-  // if (col1[spot1 + 1].classList(P2Cls) && col1[spot1 + 2].classList(P2Cls)) + 5 to arrayChoice[1] two below
-  // if (col1[spot1 + 1].classList(P2Cls) && col1[spot1 + 2].classList(P2Cls) && col1[spot1 + 3].classList(P2Cls)) + 20 to arrayChoice[1] three below
-  
-
-  // if (col`${a}[spot + i].classList(P2Cls)) cycle through below + 2 for each true
-  // if (col`${a}[spot + i].classList(P1Cls)) cycle through below - 2 for each true
-
-  // if (col`${a - i}`[spot].classList(P2Cls)) cycle through left + 2 for each true
-  // if (col`${a - i}`[spot].classList(P1Cls)) cycle through left - 2 for each true
-
-  // if (col1[spot1 + 1].classList(P2Cls)){+ 2 to arrayChoice[1]} one below
-  // if (col1[spot1 + 2].classList(P2Cls)){+ 2 to arrayChoice[1]} one below
-  // if (col1[spot1 + 3].classList(P2Cls)){+ 2 to arrayChoice[1]} one below
-  // if (col1[spot1 + 4].classList(P2Cls)){+ 2 to arrayChoice[1]} one below
- 
-
-  // if (col2[spot1].classList(P2Cls)) + 2 to arrayChoice[1] one below
-  // columnx[aiColor] && columx + 1 [aiColor] horizontal right
-  // columx[aiColor] && columx + 2 [aiColor] horizontal right
-  // columx[aiColor] && columx + 3 [aiColor] horizontal right
- 
-  
-  // columnx[aiColor] && columx - 1 [aiColor] horizontal left
-  // columnx[aiColor] && columx - 2 [aiColor] horizontal left
-  // columnx[aiColor] && columx - 1 [aiColor] horizontal left
-  // columnx[aiColor] && columx - 4 [aiColor] horizontal left
-  
-  // columnx[aiColor] && columx - 1 [aiColor + 1] diagonal down left
-  // columnx[aiColor] && columx - 1 [aiColor - 1] diagonal up left
-  // columnx[aiColor] && columx + 1 [aiColor + 1] diagonal down right
-  // columnx[aiColor] && columx + 1 [aiColor - 1] diagonal up right
-
-  // so a line of 3 would be + 5 
-  // columnx[aiColor] && columx[aiColor - 1] && columx[aiColor - 2]   two above
-
-  // columnx[aiColor] && columx + 1 [aiColor] && columx + 2 [aiColor] horizontal right
-  // columnx[aiColor] && columx - 1 [aiColor] && columx - 2 [aiColor] horizontal left
-  // columnx[aiColor] && columx - 1 [aiColor] && columx + 1 [aiColor] horizontal center
-
-  // columnx[aiColor] && columx - 1 [aiColor + 1] && columx - 2 [aiColor + 2] diagonal down left/
-  // columnx[aiColor] && columx - 1 [aiColor + 1] && columx + 1 [aiColor - 1] diagonal center/
-  // columnx[aiColor] && columx + 1 [aiColor - 1] && columx + 2 [aiColor - 2] diagonal up right/
-
-  // columnx[aiColor] && columx + 1 [aiColor + 1] && columx + 2 [aiColor + 2] diagonal down right\
-  // columnx[aiColor] && columx + 1 [aiColor + 1] && columx - 1 [aiColor - 1] diagonal center\
-  // columnx[aiColor] && columx - 1 [aiColor - 1] && columx - 2 [aiColor - 2] diagonal up left\
-
-  
-  // columnx[aiColor] && columx + 1 [aiColor + 1] diagonal up right
-
-  // + 5 for lines of three
-  
-  // function minmax(position, depth, maxPlayer){}
 
   //sounds
 
@@ -619,6 +894,7 @@ function init() {
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
 
       // vertical check 
@@ -628,6 +904,7 @@ function init() {
         col0[pIdx + 1].classList.add(winFlip)
         col0[pIdx + 2].classList.add(winFlip)
         col0[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
 
         // diagonal down right \
@@ -636,6 +913,7 @@ function init() {
         col1[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
         col3[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       } 
       
@@ -646,6 +924,7 @@ function init() {
         col1[pIdx - 1].classList.add(winFlip)
         col2[pIdx - 2].classList.add(winFlip)
         col3[pIdx - 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
     }
@@ -673,11 +952,11 @@ function init() {
     e.addEventListener('click', () => {
       if (col1[0].classList.contains(P1Cls) || col1[0].classList.contains(P2Cls)) return // do nothing if col is full or winner is found
       if (!inPlay) return
-      if (playerGo) {
+      if (playerGo && wait) {
         dropColor11()
         checkWinC1P1()
         columnFunctionsP1()
-      } else if (!playerGo) {
+      } else if (!playerGo && !computer) {
         dropColor12()
         checkWinC1P2()
         columnFunctionsP2()
@@ -759,12 +1038,14 @@ function init() {
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
     } if (col0[pIdx].classList.contains(P2Cls) && col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls)){
       col0[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
   
       // diagonal up right /
@@ -774,6 +1055,7 @@ function init() {
         col2[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
         col4[pIdx - 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal up right /
@@ -783,6 +1065,7 @@ function init() {
         col1[pIdx].classList.add(winFlip)
         col2[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       
@@ -793,6 +1076,7 @@ function init() {
         col2[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
         col4[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal down right \
@@ -802,6 +1086,7 @@ function init() {
         col1[pIdx].classList.add(winFlip)
         col2[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
   
@@ -812,6 +1097,7 @@ function init() {
         col1[pIdx + 1].classList.add(winFlip)
         col1[pIdx + 2].classList.add(winFlip)
         col1[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
     }
@@ -839,11 +1125,11 @@ function init() {
     e.addEventListener('click', () => {
       if (col2[0].classList.contains(P1Cls) || col2[0].classList.contains(P2Cls)) return // do nothing if col is full or winner is found
       if (!inPlay) return
-      if (playerGo) {
+      if (playerGo && wait) {
         dropColor21()
         checkWinC2P1()
         columnFunctionsP1()
-      } else if (!playerGo) {
+      } else if (!playerGo && !computer) {
         dropColor22()
         checkWinC2P2()
         columnFunctionsP2()
@@ -928,7 +1214,6 @@ function init() {
         col3[pIdx + 1].classList.add(winFlip)
         return checkWin()
       }
-  
       // vertical check
     } if (pIdx < 3) {
       if (col2[pIdx].classList.contains(P1Cls) && col2[pIdx + 1].classList.contains(P1Cls) && col2[pIdx + 2].classList.contains(P1Cls) && col2[pIdx + 3].classList.contains(P1Cls)){
@@ -949,18 +1234,21 @@ function init() {
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
     } if (col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls)){
       col4[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
     } if (col0[pIdx].classList.contains(P2Cls) && col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls)){
       col0[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
   
       // diagonal up right /
@@ -970,6 +1258,7 @@ function init() {
         col3[pIdx - 1].classList.add(winFlip)
         col4[pIdx - 2].classList.add(winFlip)
         col5[pIdx - 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal up right / 
@@ -979,6 +1268,7 @@ function init() {
         col2[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
         col4[pIdx - 2].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal up right /
@@ -988,6 +1278,7 @@ function init() {
         col1[pIdx + 1].classList.add(winFlip)
         col2[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal down right \
@@ -997,6 +1288,7 @@ function init() {
         col3[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
         col5[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal down right \
@@ -1006,6 +1298,7 @@ function init() {
         col2[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal down right \
@@ -1015,6 +1308,7 @@ function init() {
         col1[pIdx - 1].classList.add(winFlip)
         col2[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
   
@@ -1025,6 +1319,7 @@ function init() {
         col2[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
         col2[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
     }
@@ -1052,11 +1347,11 @@ function init() {
     e.addEventListener('click', () => {
       if (col3[0].classList.contains(P1Cls) || col3[0].classList.contains(P2Cls)) return // do nothing if col is full or winner is found
       if (!inPlay) return
-      if (playerGo) {
+      if (playerGo && wait) {
         dropColor31()
         checkWinC3P1()
         columnFunctionsP1()
-      } else if (!playerGo) {
+      } else if (!playerGo && !computer) {
         dropColor32()
         checkWinC3P2()
         columnFunctionsP2()
@@ -1186,24 +1481,28 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
     } if (col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls) && col5[pIdx].classList.contains(P2Cls)){
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
     } if (col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls)){
       col4[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
     } if (col0[pIdx].classList.contains(P2Cls) && col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls)){
       col0[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
   
       // diagonal up right /
@@ -1213,6 +1512,7 @@ function init() {
         col5[pIdx - 2].classList.add(winFlip)
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal up right / 
@@ -1222,6 +1522,7 @@ function init() {
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
         col2[pIdx + 1].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal up right /
@@ -1231,6 +1532,7 @@ function init() {
         col3[pIdx].classList.add(winFlip)
         col2[pIdx + 1].classList.add(winFlip)
         col1[pIdx + 2].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal up left \
@@ -1240,10 +1542,10 @@ function init() {
         col2[pIdx - 1].classList.add(winFlip)
         col1[pIdx - 2].classList.add(winFlip)
         col0[pIdx - 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
     
-      
       // diagonal down right \
     } if (pIdx < 3) {
       if (col6[pIdx + 3].classList.contains(P2Cls) && col5[pIdx + 2].classList.contains(P2Cls) && col4[pIdx + 1].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls)) {
@@ -1251,6 +1553,7 @@ function init() {
         col5[pIdx + 2].classList.add(winFlip)
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal down right \
@@ -1260,6 +1563,7 @@ function init() {
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx].classList.add(winFlip)
         col2[pIdx - 1].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal down right \
@@ -1269,6 +1573,7 @@ function init() {
         col3[pIdx].classList.add(winFlip)
         col2[pIdx - 1].classList.add(winFlip)
         col1[pIdx - 2].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal down left /
@@ -1278,6 +1583,7 @@ function init() {
         col2[pIdx + 1].classList.add(winFlip)
         col1[pIdx + 2].classList.add(winFlip)
         col0[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
   
@@ -1288,6 +1594,7 @@ function init() {
         col3[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
         col3[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
     }
@@ -1315,11 +1622,11 @@ function init() {
     e.addEventListener('click', () => {
       if (col4[0].classList.contains(P1Cls) || col4[0].classList.contains(P2Cls)) return // do nothing if col is full or winner is found
       if (!inPlay) return
-      if (playerGo) {
+      if (playerGo && wait) {
         dropColor41()
         checkWinC4P1()
         columnFunctionsP1()
-      } else if (!playerGo) {
+      } else if (!playerGo && !computer) {
         dropColor42()
         checkWinC4P2()
         columnFunctionsP2()
@@ -1425,18 +1732,21 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
     } if (col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls) && col5[pIdx].classList.contains(P2Cls)){
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
     } if (col1[pIdx].classList.contains(P2Cls) && col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls)){
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col1[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
   
       // diagonal up right /
@@ -1446,6 +1756,7 @@ function init() {
         col5[pIdx - 1].classList.add(winFlip)
         col4[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal up right / 
@@ -1455,6 +1766,7 @@ function init() {
         col4[pIdx].classList.add(winFlip)
         col3[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal up left \
@@ -1464,6 +1776,7 @@ function init() {
         col3[pIdx - 1].classList.add(winFlip)
         col2[pIdx - 2].classList.add(winFlip)
         col1[pIdx - 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
 
@@ -1474,6 +1787,7 @@ function init() {
         col3[pIdx + 1].classList.add(winFlip)
         col2[pIdx + 2].classList.add(winFlip)
         col1[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal down right \
@@ -1483,6 +1797,7 @@ function init() {
         col4[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
         col2[pIdx - 2].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal down right \
@@ -1492,6 +1807,7 @@ function init() {
         col5[pIdx + 1].classList.add(winFlip)
         col4[pIdx].classList.add(winFlip)
         col3[pIdx - 1].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       
@@ -1502,6 +1818,7 @@ function init() {
         col4[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
         col4[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
     }
@@ -1529,11 +1846,11 @@ function init() {
     e.addEventListener('click', () => {
       if (col5[0].classList.contains(P1Cls) || col5[0].classList.contains(P2Cls)) return // do nothing if col is full or winner is found
       if (!inPlay) return
-      if (playerGo) {
+      if (playerGo && wait) {
         dropColor51()
         checkWinC5P1()
         columnFunctionsP1()
-      } else if (!playerGo) {
+      } else if (!playerGo && !computer) {
         dropColor52()
         checkWinC5P2()
         columnFunctionsP2()
@@ -1616,12 +1933,14 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
     } if (col2[pIdx].classList.contains(P2Cls) && col3[pIdx].classList.contains(P2Cls) && col4[pIdx].classList.contains(P2Cls) && col5[pIdx].classList.contains(P2Cls)){
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col2[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
   
       // diagonal up right / 
@@ -1631,6 +1950,7 @@ function init() {
         col5[pIdx].classList.add(winFlip)
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal up left \
@@ -1640,6 +1960,7 @@ function init() {
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
         col2[pIdx - 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
 
@@ -1650,6 +1971,7 @@ function init() {
         col5[pIdx].classList.add(winFlip)
         col4[pIdx - 1].classList.add(winFlip)
         col3[pIdx - 2].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
       // diagonal down left /
@@ -1659,6 +1981,7 @@ function init() {
         col4[pIdx + 1].classList.add(winFlip)
         col3[pIdx + 2].classList.add(winFlip)
         col2[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
   
@@ -1669,6 +1992,7 @@ function init() {
         col5[pIdx + 1].classList.add(winFlip)
         col5[pIdx + 2].classList.add(winFlip)
         col5[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
     }
@@ -1696,11 +2020,11 @@ function init() {
     e.addEventListener('click', () => {
       if (col6[0].classList.contains(P1Cls) || col6[0].classList.contains(P2Cls)) return // do nothing if col is full or winner is found
       if (!inPlay) return
-      if (playerGo) {
+      if (playerGo && wait) {
         dropColor61()
         checkWinC6P1()
         columnFunctionsP1()
-      } else if (!playerGo) {
+      } else if (!playerGo && !computer) {
         dropColor62()
         checkWinC6P2()
         columnFunctionsP2()
@@ -1758,6 +2082,7 @@ function init() {
       col5[pIdx].classList.add(winFlip)
       col4[pIdx].classList.add(winFlip)
       col3[pIdx].classList.add(winFlip)
+      if (computer) return compWin()
       return checkWin()
   
       // diagonal down right / 
@@ -1767,6 +2092,7 @@ function init() {
         col5[pIdx + 1].classList.add(winFlip)
         col4[pIdx + 2].classList.add(winFlip)
         col3[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
 
@@ -1777,6 +2103,7 @@ function init() {
         col5[pIdx - 1].classList.add(winFlip)
         col4[pIdx - 2].classList.add(winFlip)
         col3[pIdx - 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
   
@@ -1787,6 +2114,7 @@ function init() {
         col6[pIdx + 1].classList.add(winFlip)
         col6[pIdx + 2].classList.add(winFlip)
         col6[pIdx + 3].classList.add(winFlip)
+        if (computer) return compWin()
         return checkWin()
       }
     }
