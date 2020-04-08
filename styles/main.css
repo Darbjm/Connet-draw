@@ -34,6 +34,11 @@ div.container{
   height: 60%;
 }
 
+img.logo{
+  max-width: 300px;
+  max-height: 100px;
+}
+
 div.side{
   display: none;
   flex-direction: column;
